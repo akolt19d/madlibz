@@ -2,4 +2,4 @@
     export let data;
 </script>
 
-<h1>{ data.lobbyId }</h1>
+<h1>{ data.roomId }</h1>
