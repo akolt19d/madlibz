@@ -4,7 +4,7 @@ import configureServer from './server';
 
 export const webSocketServer = {
 	name: "webSocketServer",
-	configureServer: configureServer
+	configureServer
 }
 
 export default defineConfig({
