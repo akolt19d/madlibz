@@ -1,10 +1,10 @@
 import { Server } from 'socket.io';
 import { generateRoomCode } from "./RoomCode"
 
-let rooms = []
 
 export default function configureServer(server) {
     const io = new Server(server.httpServer)
+    let active = {}
 
     io.on("connect", (socket) => {
         socket.emit("event", socket.id)
@@ -13,26 +13,38 @@ export default function configureServer(server) {
             let code = ""
             while(true) {
                 code = generateRoomCode()
+                const rooms = Object.keys(active)
                 if(!rooms.includes(code)) {
-                    rooms.push(code)
+                    active[code] = []
+                    console.log(active)
                     break;
                 }
             }
-            callback({
-                roomCode: code
-            })
+            callback(code)
         })
 
         socket.on("joiningRoom", (roomCode) => {
             socket.join(roomCode)
+            active[roomCode].push(socket.id)
+
             console.log(`${socket.id} joined room '${roomCode}'`)
+            console.log(active)
+
             io.to(roomCode).emit("alertRoom", `${socket.id} joined the room!`)
+            io.to(roomCode).emit("playerUpdate", active[roomCode])
         })
 
         socket.on("leavingRoom", (roomCode) => {
             socket.leave(roomCode)
+            active[roomCode] = active[roomCode].filter(x => x != socket.id)
+            if(active[roomCode].length == 0)
+                delete active[roomCode]
+
             console.log(`${socket.id} left room '${roomCode}'`)
+            console.log(active)
+
             io.to(roomCode).emit("alertRoom", `${socket.id} left the room :(`)
+            io.to(roomCode).emit("playerUpdate", active[roomCode])
         })
     })
 }
