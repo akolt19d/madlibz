@@ -1,4 +1,5 @@
 <script>
+  import { beforeNavigate } from "$app/navigation";
     export let data;
     import { io } from "socket.io-client"
 
@@ -6,8 +7,12 @@
 
     socket.emit("joiningRoom", data.roomId)
 
-    socket.on("playerJoined", (message) => {
+    socket.on("alertRoom", (message) => {
         alert(message)
+    })
+
+    beforeNavigate(() => {
+        socket.emit("leavingRoom", data.roomId)
     })
 </script>
 

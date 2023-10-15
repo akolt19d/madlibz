@@ -26,7 +26,13 @@ export default function configureServer(server) {
         socket.on("joiningRoom", (roomCode) => {
             socket.join(roomCode)
             console.log(`${socket.id} joined room '${roomCode}'`)
-            io.to(roomCode).emit("playerJoined", `${socket.id} joined the room!`)
+            io.to(roomCode).emit("alertRoom", `${socket.id} joined the room!`)
+        })
+
+        socket.on("leavingRoom", (roomCode) => {
+            socket.leave(roomCode)
+            console.log(`${socket.id} left room '${roomCode}'`)
+            io.to(roomCode).emit("alertRoom", `${socket.id} left the room :(`)
         })
     })
 }
