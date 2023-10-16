@@ -1,10 +1,17 @@
 import { Server } from 'socket.io';
 import { generateRoomCode } from "./RoomCode"
 
+let active = {}
+
+function isRoomActive(roomCode) {
+    const rooms = Object.keys(active)
+    // console.log(rooms, roomCode, Object.create(active))
+    
+    return rooms.includes(roomCode)
+}
 
 export default function configureServer(server) {
     const io = new Server(server.httpServer)
-    let active = {}
 
     io.on("connect", (socket) => {
         socket.emit("event", socket.id)
@@ -23,27 +30,31 @@ export default function configureServer(server) {
             callback(code)
         })
 
-        socket.on("joiningRoom", (roomCode) => {
+        socket.on("joiningRoom", (roomCode, username) => {
+            let { id } = socket
             socket.join(roomCode)
-            active[roomCode].push(socket.id)
+            active[roomCode].push({
+                id,
+                username
+            })
 
-            console.log(`${socket.id} joined room '${roomCode}'`)
+            console.log(`${username} (${id}) joined room '${roomCode}'`)
             console.log(active)
 
-            io.to(roomCode).emit("alertRoom", `${socket.id} joined the room!`)
+            io.to(roomCode).emit("alertRoom", `${username} joined the room!`)
             io.to(roomCode).emit("playerUpdate", active[roomCode])
         })
 
-        socket.on("leavingRoom", (roomCode) => {
+        socket.on("leavingRoom", (roomCode, username) => {
             socket.leave(roomCode)
-            active[roomCode] = active[roomCode].filter(x => x != socket.id)
+            active[roomCode] = active[roomCode].filter(x => x.id != socket.id)
             if(active[roomCode].length == 0)
                 delete active[roomCode]
 
-            console.log(`${socket.id} left room '${roomCode}'`)
+            console.log(`${username} (${socket.id}) left room '${roomCode}'`)
             console.log(active)
 
-            io.to(roomCode).emit("alertRoom", `${socket.id} left the room :(`)
+            io.to(roomCode).emit("alertRoom", `${username} left the room :(`)
             io.to(roomCode).emit("playerUpdate", active[roomCode])
         })
     })

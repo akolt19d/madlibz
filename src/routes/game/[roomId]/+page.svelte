@@ -1,24 +1,24 @@
 <script>
     import { beforeNavigate } from "$app/navigation";
-    export let data;
     import { io } from "socket.io-client"
+    export let data;
 
     const socket = io()
 
     let players = []
 
-    socket.emit("joiningRoom", data.roomId)
+    socket.emit("joiningRoom", data.roomId, data.username)
 
     socket.on("alertRoom", (message) => {
         alert(message)
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
-        players = updatedPlayers
+        players = updatedPlayers.map(x => x.username)
     })
 
     beforeNavigate(() => {
-        socket.emit("leavingRoom", data.roomId)
+        socket.emit("leavingRoom", data.roomId, data.username)
     })
 </script>
 

@@ -21,6 +21,7 @@
 	"type": "module",
 	"dependencies": {
 		"socket.io": "^4.7.2",
-		"socket.io-client": "^4.7.2"
+		"socket.io-client": "^4.7.2",
+		"svelte-cookie": "^1.0.1"
 	}
 }

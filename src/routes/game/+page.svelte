@@ -1,19 +1,34 @@
 <script>
     import { goto } from "$app/navigation";
     import { io } from "socket.io-client"
+    import { setCookie, getCookie } from 'svelte-cookie'
 
     const socket = io()
     let roomcode = ""
-    let code = ""
+    let username = getCookie("username") == "" ? generateAnonUsername() : getCookie("username")
+
+    function generateAnonUsername() {
+        let randomUsername = "User#"
+        for(let i = 0; i < 4; i++) {
+            randomUsername += String(Math.floor(Math.random() * 9))
+        }
+        
+        return randomUsername
+    }
+
+    function redirectToRoom(roomId) {
+        setCookie("username", username, 30)
+        goto(`/game/${roomId}`)
+    }
 
     function createRoom() {
-        socket.emit("creatingRoom", (roomCode = "") => {
-            goto(`/game/${roomCode}`)
+        socket.emit("creatingRoom", (code) => {
+            redirectToRoom(code)
         })
     }
 
     function joinRoom() {
-        goto(`/game/${roomcode}`)
+        redirectToRoom(roomcode)
     }
 </script>
 
@@ -22,3 +37,6 @@
 <p>or</p>
 <button on:click={joinRoom}>Join a room</button>
 <input type="text" placeholder="room code" id="roomcode" bind:value={roomcode}>
+<br><br>
+<label for="username">Enter your username</label>
+<input type="text" id="username" name="username" placeholder="Username" bind:value={username}>

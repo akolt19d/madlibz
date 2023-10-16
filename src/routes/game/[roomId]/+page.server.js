@@ -1,13 +1,19 @@
-// import { isRoomCodeValid } from '$lib/RoomCode.js'
-import { error } from '@sveltejs/kit'
+import { isRoomCodeValid } from '$lib/RoomCodeUtils.js'
+import { redirect } from '@sveltejs/kit'
 
-export function load({ params }) {
+export function load({ params, cookies }) {
     const { roomId } = params
+    const username = cookies.get("username")
 
-    // if(!isRoomCodeValid(roomId))
-    //     throw error(404)
+    // console.log(roomId, username)
+
+    // console.log(isRoomActive(roomId))
+
+    if(!username || !isRoomCodeValid(roomId))
+        throw redirect(302, "/game")
 
     return {
-        roomId
+        roomId,
+        username
     }
 }
