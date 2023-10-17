@@ -26,7 +26,10 @@
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
-        players = updatedPlayers.map(x => x.username)
+        players = updatedPlayers.map(x => {
+            let { id, ...player } = x
+            return player
+        })
     })
 
     beforeNavigate(() => {
@@ -42,7 +45,7 @@
     <h3>Players:</h3>
     <ol>
         {#each players as player}
-            <li>{player}</li>
+            <li>{player.username} {player.isHost ? "👑" : ""}</li>
         {/each}
     </ol>
 {/if}

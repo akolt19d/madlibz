@@ -38,7 +38,8 @@ export default function configureServer(server) {
                 socket.data.username = username
                 active[roomCode].push({
                     id,
-                    username
+                    username,
+                    isHost: active[roomCode].length == 0
                 })
     
                 console.log(`${username} (${id}) joined room '${roomCode}'`)
