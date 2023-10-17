@@ -3,11 +3,9 @@ import { generateRoomCode } from "./RoomCode"
 
 let active = {}
 
-function isRoomActive(roomCode) {
+function isRoomActive(roomId) {
     const rooms = Object.keys(active)
-    // console.log(rooms, roomCode, Object.create(active))
-    
-    return rooms.includes(roomCode)
+    return rooms.includes(roomId)
 }
 
 export default function configureServer(server) {
@@ -30,19 +28,26 @@ export default function configureServer(server) {
             callback(code)
         })
 
-        socket.on("joiningRoom", (roomCode, username) => {
-            let { id } = socket
-            socket.join(roomCode)
-            active[roomCode].push({
-                id,
-                username
-            })
-
-            console.log(`${username} (${id}) joined room '${roomCode}'`)
-            console.log(active)
-
-            io.to(roomCode).emit("alertRoom", `${username} joined the room!`)
-            io.to(roomCode).emit("playerUpdate", active[roomCode])
+        socket.on("joiningRoom", (roomCode, username, callback) => {           
+            if(!isRoomActive(roomCode)) {
+                callback(false)
+            }
+            else {
+                let { id } = socket
+                socket.join(roomCode)
+                socket.data.username = username
+                active[roomCode].push({
+                    id,
+                    username
+                })
+    
+                console.log(`${username} (${id}) joined room '${roomCode}'`)
+                console.log(active)
+    
+                io.to(roomCode).emit("alertRoom", `${username} joined the room!`)
+                io.to(roomCode).emit("playerUpdate", active[roomCode])
+                callback(true)
+            }
         })
 
         socket.on("leavingRoom", (roomCode, username) => {
@@ -57,5 +62,6 @@ export default function configureServer(server) {
             io.to(roomCode).emit("alertRoom", `${username} left the room :(`)
             io.to(roomCode).emit("playerUpdate", active[roomCode])
         })
+
     })
 }

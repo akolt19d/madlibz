@@ -5,7 +5,13 @@
 
     const socket = io()
     let roomcode = ""
-    let username = getCookie("username") == "" ? generateAnonUsername() : getCookie("username")
+    let username = ""
+
+    try {
+        username = getCookie("username") == "" ? generateAnonUsername() : getCookie("username")
+    } catch (error) {
+        username = generateAnonUsername()
+    }
 
     function generateAnonUsername() {
         let randomUsername = "User#"
