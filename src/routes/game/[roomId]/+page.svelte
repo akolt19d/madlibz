@@ -8,8 +8,11 @@
     const socket = io()
 
     let players = []
+    let chat = []
     let roomInactive = false
     let loading = true
+
+    let chatInput = ""
 
     onMount(() => {
         socket.emit("joiningRoom", data.roomId, data.username, (isValid) => {
@@ -21,8 +24,8 @@
         })
     })
 
-    socket.on("alertRoom", (message) => {
-        console.log(message)
+    socket.on("chatUpdate", (updatedChat) => {
+        chat = updatedChat
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
@@ -36,6 +39,11 @@
         if(!roomInactive)
             socket.emit("leavingRoom", data.roomId, data.username)
     })
+
+    function sendChatMessage() {
+        socket.emit("sendingChatMessage", data.roomId, data.username, chatInput)
+        chatInput = ""
+    }
 </script>
 
 {#if loading}
@@ -48,4 +56,16 @@
             <li>{player.username} {player.isHost ? "👑" : ""}</li>
         {/each}
     </ol>
+    <input type="text" bind:value={chatInput}><button on:click={sendChatMessage}>Send</button>
+    <div id="chat">
+        {#each chat as chatMessage}
+            <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
+        {/each}
+    </div>
 {/if}
+
+<style>
+    .serverMessage {
+        color: red;
+    }
+</style>

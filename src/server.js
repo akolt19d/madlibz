@@ -20,7 +20,10 @@ export default function configureServer(server) {
                 code = generateRoomCode()
                 const rooms = Object.keys(active)
                 if(!rooms.includes(code)) {
-                    active[code] = []
+                    active[code] = {
+                        players: [],
+                        chat: []
+                    }
                     console.log(active)
                     break;
                 }
@@ -36,32 +39,52 @@ export default function configureServer(server) {
                 let { id } = socket
                 socket.join(roomCode)
                 socket.data.username = username
-                active[roomCode].push({
+                active[roomCode].players.push({
                     id,
                     username,
-                    isHost: active[roomCode].length == 0
+                    isHost: active[roomCode].players.length == 0
+                })
+                active[roomCode].chat.push({
+                    user: null,
+                    message: `${username} joined the room!`
                 })
     
                 console.log(`${username} (${id}) joined room '${roomCode}'`)
                 console.log(active)
     
-                io.to(roomCode).emit("alertRoom", `${username} joined the room!`)
-                io.to(roomCode).emit("playerUpdate", active[roomCode])
+                // io.to(roomCode).emit("newChatMessage", false, `${username} joined the room!`)
+                io.to(roomCode).emit("chatUpdate", active[roomCode].chat)
+                io.to(roomCode).emit("playerUpdate", active[roomCode].players)
                 callback(true)
             }
         })
 
         socket.on("leavingRoom", (roomCode, username) => {
             socket.leave(roomCode)
-            active[roomCode] = active[roomCode].filter(x => x.id != socket.id)
-            if(active[roomCode].length == 0)
+            active[roomCode].players = active[roomCode].players.filter(x => x.id != socket.id)
+            active[roomCode].chat.push({
+                user: null,
+                message: `${username} left the room :(`
+            })
+            if(active[roomCode].players.length == 0)
                 delete active[roomCode]
+
 
             console.log(`${username} (${socket.id}) left room '${roomCode}'`)
             console.log(active)
 
-            io.to(roomCode).emit("alertRoom", `${username} left the room :(`)
-            io.to(roomCode).emit("playerUpdate", active[roomCode])
+            // io.to(roomCode).emit("newChatMessage", false, `${username} left the room :(`)
+            io.to(roomCode).emit("chatUpdate", active[roomCode].chat)
+            io.to(roomCode).emit("playerUpdate", active[roomCode].players)
+        })
+
+        socket.on("sendingChatMessage", (roomCode, username, message) => {
+            // console.log(roomCode, username, message)
+            active[roomCode].chat.push({
+                user: username,
+                message
+            })
+            io.to(roomCode).emit("chatUpdate", active[roomCode].chat)
         })
 
     })
