@@ -2,9 +2,10 @@
     import { goto } from "$app/navigation";
     import { io } from "socket.io-client"
     import { setCookie, getCookie } from 'svelte-cookie'
+    export let data;
 
     const socket = io()
-    let roomcode = ""
+    let roomcode = data.roomCode
     let username = ""
 
     try {

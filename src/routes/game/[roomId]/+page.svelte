@@ -13,6 +13,7 @@
     let loading = true
 
     let chatInput = ""
+    let gameOption = false
 
     onMount(() => {
         socket.emit("joiningRoom", data.roomId, data.username, (isValid) => {
@@ -56,15 +57,27 @@
             <li>{player.username} {player.isHost ? "👑" : ""}</li>
         {/each}
     </ol>
+    <input type="checkbox" bind:checked={gameOption}>
+    {#if gameOption}
+        <p>essa</p>
+    {:else}
+        <p>Podaj własny tekst</p>
+        <input type="text" name="title" placeholder="Tytuł"><br>
+        <textarea cols="30" rows="10" placeholder="Historyjka..." /><br>
+    {/if}
     <input type="text" bind:value={chatInput}><button on:click={sendChatMessage}>Send</button>
     <div id="chat">
         {#each chat as chatMessage}
             <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
         {/each}
     </div>
+
 {/if}
 
 <style>
+    #chat {
+        border: 1px solid black;
+    }
     .serverMessage {
         color: red;
     }

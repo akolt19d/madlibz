@@ -24,7 +24,7 @@ export default function configureServer(server) {
                         players: [],
                         chat: []
                     }
-                    console.log(active)
+                    // console.log(active)
                     break;
                 }
             }
@@ -50,7 +50,7 @@ export default function configureServer(server) {
                 })
     
                 console.log(`${username} (${id}) joined room '${roomCode}'`)
-                console.log(active)
+                // console.log(active)
     
                 // io.to(roomCode).emit("newChatMessage", false, `${username} joined the room!`)
                 io.to(roomCode).emit("chatUpdate", active[roomCode].chat)
@@ -71,11 +71,13 @@ export default function configureServer(server) {
 
 
             console.log(`${username} (${socket.id}) left room '${roomCode}'`)
-            console.log(active)
+            // console.log(active)
 
             // io.to(roomCode).emit("newChatMessage", false, `${username} left the room :(`)
-            io.to(roomCode).emit("chatUpdate", active[roomCode].chat)
-            io.to(roomCode).emit("playerUpdate", active[roomCode].players)
+            if(active[roomCode]) {
+                io.to(roomCode).emit("chatUpdate", active[roomCode].chat)
+                io.to(roomCode).emit("playerUpdate", active[roomCode].players)
+            }
         })
 
         socket.on("sendingChatMessage", (roomCode, username, message) => {
