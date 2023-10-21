@@ -51,7 +51,7 @@
     <Loader />
 {:else}
     <h1>Room code: { data.roomId }</h1>
-    <h3>Players:</h3>
+    <h3>Players ({players.length}/8):</h3>
     <ol>
         {#each players as player}
             <li>{player.username} {player.isHost ? "👑" : ""}</li>
