@@ -9,18 +9,13 @@
 
     let players = []
     let chat = []
-    let roomInactive = false
     let loading = true
 
     let chatInput = ""
     let gameOption = false
 
     onMount(() => {
-        socket.emit("joiningRoom", data.roomId, data.username, (isValid) => {
-            if(!isValid) {
-                roomInactive = true
-                goto("/game")
-            }
+        socket.emit("joiningRoom", data.roomId, data.username, () => {
             loading = false
         })
     })
@@ -37,8 +32,7 @@
     })
 
     beforeNavigate(() => {
-        if(!roomInactive)
-            socket.emit("leavingRoom", data.roomId, data.username)
+        socket.emit("leavingRoom", data.roomId, data.username)
     })
 
     function sendChatMessage() {

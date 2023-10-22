@@ -48,7 +48,7 @@ export default function configureServer(server) {
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
             if(!isRoomActive(roomCode, active)) {
-                callback(false)
+                callback()
             }
             else {
                 let { id } = socket
@@ -76,7 +76,7 @@ export default function configureServer(server) {
                 let players = await getPlayers(roomCode, active)
                 io.to(roomCode).emit("chatUpdate", chat)
                 io.to(roomCode).emit("playerUpdate", players)
-                callback(true)
+                callback()
             }
         })
 
