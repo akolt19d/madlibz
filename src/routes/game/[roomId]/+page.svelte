@@ -1,30 +1,30 @@
 <script>
     import { beforeNavigate, goto } from "$app/navigation";
-    import { io } from "socket.io-client"
     import { onMount } from "svelte";
     import Loader from "$lib/components/Loader.svelte";
+    import { globalSocket } from "$lib/socket.js";
     export let data;
 
-    const socket = io()
+    const socket = globalSocket
 
-    let players = []
-    let chat = []
-    let loading = true
+    let players = data.players
+    let chat = data.chat
+    let loading = false
 
     let chatInput = ""
     let gameOption = false
 
-    onMount(() => {
-        socket.emit("joiningRoom", data.roomId, data.username, () => {
-            loading = false
-        })
-    })
+    // onMount(() => {
+    //     socket.emit("joinedRoom", data.roomId)
+    // })
 
     socket.on("chatUpdate", (updatedChat) => {
+        console.log("Chat update!")
         chat = updatedChat
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
+        console.log("Player update!")
         players = updatedPlayers.map(x => {
             let { id, ...player } = x
             return player
@@ -32,8 +32,14 @@
     })
 
     beforeNavigate(() => {
-        socket.emit("leavingRoom", data.roomId, data.username)
+        leaveRoom()
     })
+
+    function leaveRoom() {
+        socket.emit("leavingRoom", data.roomId, data.username, () => {
+            goto("/game")
+        })
+    }
 
     function sendChatMessage() {
         socket.emit("sendingChatMessage", data.roomId, data.username, chatInput)
@@ -44,7 +50,8 @@
 {#if loading}
     <Loader />
 {:else}
-    <h1>Room code: { data.roomId }</h1>
+    <h1>Room code: <span class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</span></h1>
+    <button on:click={leaveRoom}>Leave room</button>
     <h3>Players ({players.length}/8):</h3>
     <ol>
         {#each players as player}
@@ -74,5 +81,9 @@
     }
     .serverMessage {
         color: red;
+    }
+
+    .roomcode {
+        cursor: pointer;
     }
 </style>

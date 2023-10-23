@@ -1,10 +1,10 @@
 <script>
     import { goto } from "$app/navigation";
-    import { io } from "socket.io-client"
+    import { globalSocket } from "$lib/socket.js";
     import { setCookie, getCookie } from 'svelte-cookie'
     export let data;
 
-    const socket = io()
+    const socket = globalSocket
     let roomcode = data.roomCode
     let username = ""
 
@@ -23,19 +23,29 @@
         return randomUsername
     }
 
-    function redirectToRoom(roomId) {
+    async function redirectToRoom(roomId) {
         setCookie("username", username, 30)
         goto(`/game/${roomId}`)
     }
 
     function createRoom() {
         socket.emit("creatingRoom", (code) => {
-            redirectToRoom(code)
+            socket.emit("joiningRoom", code, username, (isActive) => {
+                if(isActive)
+                    redirectToRoom(code)
+                else 
+                    console.log("Room inactive.")
+            })
         })
     }
 
     function joinRoom() {
-        redirectToRoom(roomcode)
+        socket.emit("joiningRoom", roomcode, username, (isActive) => {
+            if(isActive)
+                redirectToRoom(roomcode)
+            else 
+                console.log("Room inactive.")
+        })
     }
 </script>
 

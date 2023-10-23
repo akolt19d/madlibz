@@ -47,8 +47,8 @@ export default function configureServer(server) {
         })
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
-            if(!isRoomActive(roomCode, active)) {
-                callback()
+            if(!(await isRoomActive(roomCode, active))) {
+                callback(false)
             }
             else {
                 let { id } = socket
@@ -76,42 +76,46 @@ export default function configureServer(server) {
                 let players = await getPlayers(roomCode, active)
                 io.to(roomCode).emit("chatUpdate", chat)
                 io.to(roomCode).emit("playerUpdate", players)
-                callback()
+                callback(true)
             }
         })
 
-        socket.on("leavingRoom", async (roomCode, username) => {
+        socket.on("leavingRoom", async (roomCode, username, callback) => {
             socket.leave(roomCode)
             let room = await active.findOne({ roomId: roomCode })
-            let playerAmount = room.players.length
-            if(playerAmount == 1) {
-                await active.deleteOne({ roomId: roomCode })
-            }
-            else {
-                await active.updateOne({ roomId: roomCode }, {
-                    $pull: {
-                        "players": {
-                            id: socket.id
+            if(room) {
+                let playerAmount = room.players.length
+                if(playerAmount == 1) {
+                    await active.deleteOne({ roomId: roomCode })
+                }
+                else {
+                    await active.updateOne({ roomId: roomCode }, {
+                        $pull: {
+                            "players": {
+                                id: socket.id
+                            }
+                        },
+                        $push: {
+                            chat: {
+                                user: null,
+                                message: `${username} left the room :(`
+                            }
                         }
-                    },
-                    $push: {
-                        chat: {
-                            user: null,
-                            message: `${username} left the room :(`
-                        }
-                    }
-                })
-            }
-
-
-            console.log(`${username} (${socket.id}) left room '${roomCode}'`)
-            // console.log(active)
-
-            if(playerAmount > 1) {
-                let chat = await getChat(roomCode, active)
-                let players = await getPlayers(roomCode, active)
-                io.to(roomCode).emit("chatUpdate", chat)
-                io.to(roomCode).emit("playerUpdate", players)
+                    })
+                }
+    
+    
+                console.log(`${username} (${socket.id}) left room '${roomCode}'`)
+                // console.log(active)
+    
+                if(playerAmount > 1) {
+                    let chat = await getChat(roomCode, active)
+                    let players = await getPlayers(roomCode, active)
+                    io.to(roomCode).emit("chatUpdate", chat)
+                    io.to(roomCode).emit("playerUpdate", players)
+                }
+    
+                callback()
             }
         })
 
@@ -126,6 +130,7 @@ export default function configureServer(server) {
             })
             let chat = await getChat(roomCode, active)
             io.to(roomCode).emit("chatUpdate", chat)
+            console.log(io.sockets.adapter.rooms, io.sockets.adapter.rooms.get(roomCode), roomCode)
         })
 
     })
