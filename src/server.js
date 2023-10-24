@@ -9,6 +9,14 @@ async function isRoomActive(roomId, active) {
     return Boolean(res)
 }
 
+async function isUsernameAvailable(username, roomCode, active) {
+    let room = await active.findOne({ roomId: roomCode })
+    if(room.players.length == 0)
+        return true
+    let players = room.players.map(x => x.username)
+    return !players.includes(username)
+}
+
 async function isRoomFull(roomId, active) {
     const room = await active.findOne({ roomId: roomId })
     if(!room)
@@ -60,8 +68,12 @@ export default function configureServer(server) {
             callback(await setRoomCode(active))
         })
 
+        socket.on("getId", () => {
+            console.log(socket.id)
+        })
+
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
-            if(!(await isRoomActive(roomCode, active)) || (await isRoomFull(roomCode, active))) {
+            if(!(await isRoomActive(roomCode, active)) || (await isRoomFull(roomCode, active)) || !(await isUsernameAvailable(username, roomCode, active))) {
                 callback(false)
             }
             else {
