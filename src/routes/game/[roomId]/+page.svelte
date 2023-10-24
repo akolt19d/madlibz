@@ -13,6 +13,12 @@
 
     let chatInput = ""
     let gameOption = false
+    let story = getStory()
+    let selectedStory = null
+
+    $: {
+        console.log(selectedStory)
+    }
 
     // onMount(() => {
     //     socket.emit("joinedRoom", data.roomId)
@@ -30,6 +36,12 @@
             return player
         })
     })
+
+    async function getStory() {
+        const res = await fetch('/api/story?id=65381226d28bcf3c21673659')
+        const story = await res.json()
+        return story
+    }
 
     beforeNavigate(() => {
         leaveRoom()
@@ -60,7 +72,14 @@
     </ol>
     <input type="checkbox" bind:checked={gameOption}>
     {#if gameOption}
-        <p>essa</p>
+        {#await story}
+            <p>waiting...</p>
+        {:then fetchedStory}
+        <div class="card">
+            <h3>{fetchedStory.title}</h3>
+            <button on:click={() => { selectedStory = fetchedStory }}>Select</button>
+        </div>
+        {/await}
     {:else}
         <p>Podaj własny tekst</p>
         <input type="text" name="title" placeholder="Tytuł"><br>
@@ -79,11 +98,17 @@
     #chat {
         border: 1px solid black;
     }
+
     .serverMessage {
         color: red;
     }
 
     .roomcode {
         cursor: pointer;
+    }
+
+    .card {
+        padding: 10px;
+        border: 1px solid black;
     }
 </style>
