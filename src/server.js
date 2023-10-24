@@ -2,9 +2,23 @@ import { Server } from 'socket.io';
 import { generateRoomCode } from "./RoomCode"
 import { MongoClient } from "mongodb"
 
+const ROOM_CAPACITY = 8
+
 async function isRoomActive(roomId, active) {
     let res = await active.findOne({ roomId: roomId })
     return Boolean(res)
+}
+
+async function isRoomFull(roomId, active) {
+    const room = await active.findOne({ roomId: roomId })
+    if(!room)
+        return false
+
+    const { length } = room.players
+    if(length >= ROOM_CAPACITY)
+        return true
+
+    return false
 }
 
 async function getChat(roomId, active) {
@@ -47,7 +61,7 @@ export default function configureServer(server) {
         })
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
-            if(!(await isRoomActive(roomCode, active))) {
+            if(!(await isRoomActive(roomCode, active)) || (await isRoomFull(roomCode, active))) {
                 callback(false)
             }
             else {
@@ -130,7 +144,6 @@ export default function configureServer(server) {
             })
             let chat = await getChat(roomCode, active)
             io.to(roomCode).emit("chatUpdate", chat)
-            console.log(io.sockets.adapter.rooms, io.sockets.adapter.rooms.get(roomCode), roomCode)
         })
 
     })
