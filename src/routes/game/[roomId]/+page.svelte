@@ -7,8 +7,7 @@
 
     const socket = globalSocket
 
-    let players = data.players
-    let chat = data.chat
+    let { players, chat, isPlayerHost } = data
     let loading = false
 
     let chatInput = ""
@@ -37,20 +36,28 @@
         })
     })
 
+    socket.on("startGame", () => {
+        goto(`/game/${data.roomId}/play`)
+    })
+
     async function getStory() {
         const res = await fetch('/api/story?id=65381226d28bcf3c21673659')
         const story = await res.json()
         return story
     }
 
-    beforeNavigate(() => {
-        leaveRoom()
-    })
+    // beforeNavigate(() => {
+    //     leaveRoom()
+    // })
 
     function leaveRoom() {
         socket.emit("leavingRoom", data.roomId, data.username, () => {
             goto("/game")
         })
+    }
+
+    function startGame() {
+        socket.emit("startingGame", data.roomId)
     }
 
     function sendChatMessage() {
@@ -64,6 +71,9 @@
 {:else}
     <h1>Room code: <span class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</span></h1>
     <button on:click={leaveRoom}>Leave room</button>
+    {#if isPlayerHost}
+        <button on:click={startGame}>Start game</button>
+    {/if}
     <h3>Players ({players.length}/8):</h3>
     <ol>
         {#each players as player}

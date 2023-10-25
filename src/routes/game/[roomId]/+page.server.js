@@ -1,6 +1,6 @@
 import { isRoomCodeValid } from '$lib/RoomCodeUtils.js'
 import { redirect } from '@sveltejs/kit'
-import { isRoomActive, active, isPlayerInRoom } from '$lib/db/active.js'
+import { isRoomActive, active, isPlayerInRoom, isPlayerHost } from '$lib/db/active.js'
 
 export async function load({ params, cookies }) {
     const { roomId } = params
@@ -11,11 +11,13 @@ export async function load({ params, cookies }) {
 
     let room = await active.findOne({ roomId: roomId })
     let { players, chat } = room
+    let isHost = await isPlayerHost(username, roomId)
 
     return {
         roomId,
         username,
         players,
-        chat
+        chat,
+        isPlayerHost: isHost
     }
 }
