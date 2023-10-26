@@ -69,8 +69,10 @@ export default function configureServer(server) {
             callback(await setRoomCode(active))
         })
 
-        socket.on("getId", () => {
-            console.log(socket.id)
+        socket.on("clearRoom", (callback) => {
+            let rooms = Array.from(socket.rooms).filter(x => x != socket.id)
+            if(rooms.length > 0)
+                callback(rooms[0])
         })
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
@@ -107,7 +109,7 @@ export default function configureServer(server) {
             }
         })
 
-        socket.on("leavingRoom", async (roomCode, username, callback) => {
+        async function handleLeave(roomCode, callback) {
             socket.leave(roomCode)
             let room = await active.findOne({ roomId: roomCode })
             if(room) {
@@ -125,14 +127,14 @@ export default function configureServer(server) {
                         $push: {
                             chat: {
                                 user: null,
-                                message: `${username} left the room :(`
+                                message: `${socket.data.username} left the room :(`
                             }
                         }
                     })
                 }
     
     
-                console.log(`${username} (${socket.id}) left room '${roomCode}'`)
+                console.log(`${socket.data.username} (${socket.id}) left room '${roomCode}'`)
                 // console.log(active)
     
                 if(playerAmount > 1) {
@@ -142,8 +144,18 @@ export default function configureServer(server) {
                     io.to(roomCode).emit("playerUpdate", players)
                 }
     
-                callback()
+                if(callback)
+                    callback()
             }
+        }
+
+        socket.on("leavingRoom", async (roomCode, callback) => {
+            await handleLeave(roomCode, callback)
+        })
+
+        socket.on("disconnecting", async (reason) => {
+            let rooms = Array.from(socket.rooms).filter(x => x != socket.id)
+            await handleLeave(rooms[0])
         })
 
         socket.on("sendingChatMessage", async (roomCode, username, message) => {

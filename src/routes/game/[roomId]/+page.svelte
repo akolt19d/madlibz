@@ -51,7 +51,7 @@
     // })
 
     function leaveRoom() {
-        socket.emit("leavingRoom", data.roomId, data.username, () => {
+        socket.emit("leavingRoom", data.roomId, () => {
             goto("/game")
         })
     }

@@ -1,5 +1,5 @@
 <script>
-    import { goto } from "$app/navigation";
+    import { afterNavigate, goto } from "$app/navigation";
     import { globalSocket } from "$lib/socket.js";
     import { setCookie, getCookie } from 'svelte-cookie'
     export let data;
@@ -13,6 +13,12 @@
     } catch (error) {
         username = generateAnonUsername()
     }
+
+    afterNavigate(() => {
+        socket.emit("clearRoom", (room) => {
+            socket.emit("leavingRoom", room)
+        })
+    })
 
     function generateAnonUsername() {
         let randomUsername = "User#"

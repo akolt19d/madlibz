@@ -18,3 +18,8 @@ export async function isPlayerHost(username, roomCode) {
     let host = room.players.filter(x => x.isHost)[0]
     return host.username == username
 }
+
+export async function hasGameStarted(roomCode) {
+    let room = await active.findOne({ roomId: roomCode })
+    return room.hasGameStarted
+}
