@@ -12,16 +12,16 @@
 
     let chatInput = ""
     let gameOption = false
-    let story = getStory()
+    let story
     let selectedStory = null
 
     $: {
         console.log(selectedStory)
     }
 
-    // onMount(() => {
-    //     socket.emit("joinedRoom", data.roomId)
-    // })
+    onMount(() => {
+        story = getStory()
+    })
 
     socket.on("chatUpdate", (updatedChat) => {
         console.log("Chat update!")
@@ -56,8 +56,11 @@
         })
     }
 
-    function startGame() {
-        socket.emit("startingGame", data.roomId)
+    async function startGame() {
+        if(story)
+            socket.emit("startingGame", data.roomId, await getStory())
+        else 
+            alert("You must choose a story!")
     }
 
     function sendChatMessage() {
@@ -69,12 +72,12 @@
 {#if loading}
     <Loader />
 {:else}
-    <h1>Room code: <span class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</span></h1>
+    <h1>Room code: <button class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</button></h1>
     <button on:click={leaveRoom}>Leave room</button>
     {#if isPlayerHost}
         <button on:click={startGame}>Start game</button>
     {/if}
-    <h3>Players ({players.length}/8):</h3>
+    <h3>Players ({players.length}/10):</h3>
     <ol>
         {#each players as player}
             <li>{player.username} {player.isHost ? "👑" : ""}</li>

@@ -47,7 +47,8 @@ async function setRoomCode(active) {
             roomId: code,
             players: [],
             chat: [],
-            hasGameStarted: false
+            hasGameStarted: false,
+            story: null
         })
         return code
     }
@@ -171,13 +172,14 @@ export default function configureServer(server) {
             io.to(roomCode).emit("chatUpdate", chat)
         })
 
-        socket.on("startingGame", async (roomCode) => {
+        socket.on("startingGame", async (roomCode, story) => {
             let room = await active.findOne({ roomId: roomCode })
             let host = room.players.filter(x => x.isHost)[0]
-            if(host.id == socket.id) {
+            if(host.id == socket.id && story) {
                 await active.updateOne({ roomId: roomCode }, {
                     $set: {
-                        hasGameStarted: true
+                        hasGameStarted: true,
+                        story: story
                     }
                 })
                 io.to(roomCode).emit("startGame")
