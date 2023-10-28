@@ -1,7 +1,8 @@
 <script>
     export let data;
 
-    let { players, username, story } = data
+    let { players, username, story, gameSettings } = data
+    
 </script>
 
 <h3>Players ({players.length}):</h3>

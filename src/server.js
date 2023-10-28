@@ -48,7 +48,10 @@ async function setRoomCode(active) {
             players: [],
             chat: [],
             hasGameStarted: false,
-            story: null
+            story: null,
+            gameSettings: {
+                order: []
+            }
         })
         return code
     }
@@ -176,11 +179,19 @@ export default function configureServer(server) {
             let room = await active.findOne({ roomId: roomCode })
             let host = room.players.filter(x => x.isHost)[0]
             if(host.id == socket.id && story) {
+                let order = []
+                for(let i = 0; i < room.players.length; i++) {
+                    order.push(i)
+                }
+                order = order.sort(() => (Math.random() > .5) ? 1 : -1)
                 await active.updateOne({ roomId: roomCode }, {
                     $set: {
                         hasGameStarted: true,
-                        story: story
-                    }
+                        story: story,
+                        gameSettings: {
+                            order: order
+                        }
+                    },
                 })
                 io.to(roomCode).emit("startGame")
             }
