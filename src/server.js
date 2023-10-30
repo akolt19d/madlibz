@@ -2,7 +2,9 @@ import { Server } from 'socket.io';
 import { generateRoomCode } from "./RoomCode"
 import { MongoClient } from "mongodb"
 
-const ROOM_CAPACITY = 8
+const ROOM_CAPACITY = 10
+
+let GAME_VARIABLES = {}
 
 async function isRoomActive(roomId, active) {
     let res = await active.findOne({ roomId: roomId })
@@ -29,14 +31,9 @@ async function isRoomFull(roomId, active) {
     return false
 }
 
-async function getChat(roomId, active) {
+async function getRoom(roomId, active) {
     let room = await active.findOne({ roomId: roomId })
-    return room.chat
-}
-
-async function getPlayers(roomId, active) {
-    let room = await active.findOne({ roomId: roomId })
-    return room.players
+    return room
 }
 
 async function setRoomCode(active) {
@@ -49,15 +46,27 @@ async function setRoomCode(active) {
             chat: [],
             hasGameStarted: false,
             story: null,
-            gameSettings: {
-                order: []
-            }
+            gameSettings: {}
         })
+        GAME_VARIABLES[code] = {}
         return code
     }
     else {
         setRoomCode(active)
     }
+}
+
+function extendOrder(order, length) {
+    let extendedOrder = [...order]
+    for(let i = order.length; i < length; i++) {
+        extendedOrder.push(order[i % order.length])
+    }
+    return extendedOrder
+}
+
+function processStory(text) {
+    let regex = /_([^_]+)_/g
+    return text.match(regex).map(x => x.slice(1, x.length - 1))
 }
 
 export default function configureServer(server) {
@@ -93,7 +102,8 @@ export default function configureServer(server) {
                         players: {
                             id,
                             username,
-                            isHost: room.players.length == 0
+                            isHost: room.players.length == 0,
+                            roomIndex: room.players.length + 1
                         },
                         chat: {
                             user: null,
@@ -103,12 +113,11 @@ export default function configureServer(server) {
                 })
     
                 console.log(`${username} (${id}) joined room '${roomCode}'`)
-                // console.log(active)
+                // console.log(GAME_VARIABLES)
     
-                let chat = await getChat(roomCode, active)
-                let players = await getPlayers(roomCode, active)
-                io.to(roomCode).emit("chatUpdate", chat)
-                io.to(roomCode).emit("playerUpdate", players)
+                let updatedRoom = await getRoom(roomCode, active)
+                io.to(roomCode).emit("chatUpdate", updatedRoom.chat)
+                io.to(roomCode).emit("playerUpdate", updatedRoom.players)
                 callback(true)
             }
         })
@@ -119,6 +128,7 @@ export default function configureServer(server) {
             if(room) {
                 let playerAmount = room.players.length
                 if(playerAmount == 1) {
+                    delete GAME_VARIABLES[roomCode]
                     await active.deleteOne({ roomId: roomCode })
                 }
                 else {
@@ -135,17 +145,28 @@ export default function configureServer(server) {
                             }
                         }
                     })
+                    if(room.hasGameStarted) {
+                        let updatedRoom = await getRoom(roomCode, active)
+                        let updatedIndexes = updatedRoom.players.map(x => x.roomIndex)
+                        Array.from(GAME_VARIABLES[roomCode].order).forEach(i => {
+                            if(!updatedIndexes.includes(i)) {
+                                GAME_VARIABLES[roomCode].order.delete(i)
+                                GAME_VARIABLES[roomCode].extendedOrder = extendOrder(GAME_VARIABLES[roomCode].extendedOrder.filter(x => x != i), GAME_VARIABLES[roomCode].gaps.length)
+                            }
+                        })
+                    }
                 }
     
     
                 console.log(`${socket.data.username} (${socket.id}) left room '${roomCode}'`)
-                // console.log(active)
+                // console.log(GAME_VARIABLES)
     
                 if(playerAmount > 1) {
-                    let chat = await getChat(roomCode, active)
-                    let players = await getPlayers(roomCode, active)
-                    io.to(roomCode).emit("chatUpdate", chat)
-                    io.to(roomCode).emit("playerUpdate", players)
+                    let updatedRoom = await getRoom(roomCode, active)
+                    io.to(roomCode).emit("chatUpdate", updatedRoom.chat)
+                    io.to(roomCode).emit("playerUpdate", updatedRoom.players)
+                    if(room.hasGameStarted)
+                        io.to(roomCode).emit("gameVarsUpdate", GAME_VARIABLES[roomCode])
                 }
     
                 if(callback)
@@ -171,30 +192,36 @@ export default function configureServer(server) {
                     }
                 }
             })
-            let chat = await getChat(roomCode, active)
-            io.to(roomCode).emit("chatUpdate", chat)
+            let room = await getRoom(roomCode, active)
+            io.to(roomCode).emit("chatUpdate", room.chat)
         })
 
         socket.on("startingGame", async (roomCode, story) => {
             let room = await active.findOne({ roomId: roomCode })
             let host = room.players.filter(x => x.isHost)[0]
             if(host.id == socket.id && story) {
-                let order = []
-                for(let i = 0; i < room.players.length; i++) {
-                    order.push(i)
-                }
-                order = order.sort(() => (Math.random() > .5) ? 1 : -1)
+                let order = room.players.map(x => Number(x.roomIndex)).sort(() => (Math.random() > .5) ? 1 : -1)
+                let gaps = processStory(story.story)
                 await active.updateOne({ roomId: roomCode }, {
                     $set: {
                         hasGameStarted: true,
-                        story: story,
-                        gameSettings: {
-                            order: order
-                        }
+                        story: story
                     },
                 })
+                GAME_VARIABLES[roomCode] = {
+                    gaps: gaps,
+                    fills: [],
+                    order: new Set(order),
+                    extendedOrder: extendOrder(order, gaps.length),
+                    turn: order[0]
+                }
+                // console.log(GAME_VARIABLES)
                 io.to(roomCode).emit("startGame")
             }
+        })
+
+        socket.on("getGameVariables", (roomCode, callback) => {
+            callback(GAME_VARIABLES[roomCode])
         })
     })
 }
