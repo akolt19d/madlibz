@@ -58,9 +58,11 @@ async function setRoomCode(active) {
 
 function extendOrder(order, length) {
     let extendedOrder = [...order]
+    // console.log(extendedOrder, order, length)
     for(let i = order.length; i < length; i++) {
         extendedOrder.push(order[i % order.length])
     }
+    // console.log(extendedOrder)
     return extendedOrder
 }
 
@@ -151,7 +153,8 @@ export default function configureServer(server) {
                         Array.from(GAME_VARIABLES[roomCode].order).forEach(i => {
                             if(!updatedIndexes.includes(i)) {
                                 GAME_VARIABLES[roomCode].order.delete(i)
-                                GAME_VARIABLES[roomCode].extendedOrder = extendOrder(GAME_VARIABLES[roomCode].extendedOrder.filter(x => x != i), GAME_VARIABLES[roomCode].gaps.length)
+                                GAME_VARIABLES[roomCode].extendedOrder = extendOrder(Array.from(GAME_VARIABLES[roomCode].order), GAME_VARIABLES[roomCode].gaps.length + GAME_VARIABLES[roomCode].fills.length)
+                                GAME_VARIABLES[roomCode].turn = GAME_VARIABLES[roomCode].extendedOrder[GAME_VARIABLES[roomCode].round - 1]
                             }
                         })
                     }
@@ -213,7 +216,8 @@ export default function configureServer(server) {
                     fills: [],
                     order: new Set(order),
                     extendedOrder: extendOrder(order, gaps.length),
-                    turn: order[0]
+                    turn: order[0],
+                    round: 1
                 }
                 // console.log(GAME_VARIABLES)
                 io.to(roomCode).emit("startGame")
@@ -222,6 +226,20 @@ export default function configureServer(server) {
 
         socket.on("getGameVariables", (roomCode, callback) => {
             callback(GAME_VARIABLES[roomCode])
+        })
+
+        socket.on("gapFilled", async (roomCode, username, fill) => {
+            let room = await getRoom(roomCode, active)
+            let player = room.players.filter(x => x.username == username)[0]
+            if(GAME_VARIABLES[roomCode].turn == player.roomIndex) {
+                GAME_VARIABLES[roomCode].gaps.shift()
+                GAME_VARIABLES[roomCode].fills.push(fill)
+                GAME_VARIABLES[roomCode].round += 1
+                GAME_VARIABLES[roomCode].turn = GAME_VARIABLES[roomCode].extendedOrder[GAME_VARIABLES[roomCode].round - 1]
+                // console.log(GAME_VARIABLES)
+
+                io.to(roomCode).emit("gameVarsUpdate", GAME_VARIABLES[roomCode])
+            }
         })
     })
 }

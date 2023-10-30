@@ -2,17 +2,16 @@
     export let data;
     import { globalSocket } from '$lib/socket.js';
     import { goto } from '$app/navigation';
-    import { extendOrder } from '$lib/utils.js';
     import { writable } from 'svelte/store';
     import { onMount } from 'svelte';
 
     const socket = globalSocket
-    let { players, username, story, gameSettings, chat } = data
+    let { players, username, story, gameSettings, chat, playerIndex } = data
     let input = ""
     let gameVariables = writable(undefined)
     let orderedPlayers = []
     $: if($gameVariables) {
-        orderedPlayers = $gameVariables.extendedOrder?.map(x => players[x-1]).slice(0, 10)
+        orderedPlayers = $gameVariables.extendedOrder?.map(x => players[x-1]).slice($gameVariables.round-1).slice(0, 10)
         console.log("Order!", orderedPlayers)
     }
     // $: orderedPlayers = $gameVariables?.extendedOrder?.map(x => players[Number(x)]).slice(0, 10)
@@ -50,14 +49,15 @@
     }
 
     function fillGap() {
-        // filledGaps.set([...$filledGaps, input])
+        socket.emit("gapFilled", data.roomId, data.username, input)
         input = ""
-        // gaps.set($gaps.slice(1))
     }
 </script>
 
 {#if $gameVariables}
     <button on:click={leaveRoom}>Leave room</button>
+    <h3>Round {$gameVariables.round}</h3>
+    <h3>Turn: {$gameVariables.turn}</h3>
     <h3>Queue:</h3>
     <ul>
         {#each orderedPlayers as player}
@@ -72,27 +72,25 @@
             <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
         {/each}
     </div>
-    <input type="text" bind:value={input}><button on:click={fillGap}>Confirm</button>
+    {#if ($gameVariables.turn == data.playerIndex)}
+        <input type="text" bind:value={input}><button on:click={fillGap}>Confirm</button>
+    {/if}
     <div id="words-container">
-        {#if $gameVariables.gaps}
-            <ol>   
-                {#each $gameVariables.gaps as gap}
-                    <li>{ gap }</li>
-                {/each}
-            </ol>
-        {/if}
-        {#if $gameVariables.fills}    
-            <ol>
-                {#each $gameVariables.fills as filledGap}
-                    <li>{ filledGap }</li>
-                {/each}
-            </ol>
-        {/if}
+        <ol>   
+            {#each $gameVariables.gaps as gap}
+                <li>{ gap }</li>
+            {/each}
+        </ol> 
+        <ol>
+            {#each $gameVariables.fills as filledGap}
+                <li>{ filledGap }</li>
+            {/each}
+        </ol>
     </div>
 {/if}
 
 <style>
-    .player:nth-child(9) {
+    .player:nth-last-child(2) {
         opacity: 40%;
     }
 
