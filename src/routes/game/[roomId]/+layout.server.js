@@ -1,6 +1,6 @@
 import { isRoomCodeValid } from '$lib/RoomCodeUtils.js'
 import { redirect } from '@sveltejs/kit'
-import { isRoomActive, active, isPlayerInRoom, isPlayerHost, hasGameStarted, hasSummaryStarted } from '$lib/db/active.js'
+import { isRoomActive, active, isPlayerInRoom, isPlayerHost } from '$lib/db/active.js'
 
 export async function load({ params, cookies }) {
     const { roomId } = params

@@ -7,7 +7,7 @@
 
     const socket = globalSocket
     let { roomId, isUsernameSet, username } = data
-    let usernameInput = ""
+    let usernameInput = generateAnonUsername()
 
     if(isUsernameSet) {
         socket.emit("joiningRoom", roomId, username, (isActive) => {
@@ -16,6 +16,15 @@
             else 
                 goto("/game")
         })
+    }
+
+    function generateAnonUsername() {
+        let randomUsername = "User#"
+        for(let i = 0; i < 4; i++) {
+            randomUsername += String(Math.floor(Math.random() * 9))
+        }
+        
+        return randomUsername
     }
 
     function joinRoom() {

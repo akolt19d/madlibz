@@ -245,7 +245,7 @@ export default function configureServer(server) {
         socket.on("gapFilled", async (roomCode, username, fill) => {
             if(!fill)
                 return
-            
+
             let room = await getRoom(roomCode, active)
             let player = room.players.filter(x => x.username == username)[0]
             if(GAME_VARIABLES[roomCode].turn == player.roomIndex) {
@@ -277,6 +277,20 @@ export default function configureServer(server) {
             let player = room.players.filter(x => x.username == username)[0]
             if(GAME_VARIABLES[roomCode].turn == player.roomIndex)
                 io.to(roomCode).emit("updateFillValue", fillValue)
+        })
+
+        socket.on("endingSummary", async (roomCode) => {
+            let room = await getRoom(roomCode, active)
+            let host = room.players.filter(x => x.isHost)[0]
+            if(host.id == socket.id) {
+                await active.updateOne({ roomId: roomCode }, {
+                    $set: {
+                        hasSummaryStarted: false
+                    }
+                })
+                GAME_VARIABLES[roomCode] = {}
+                io.to(roomCode).emit("summaryEnded")
+            }
         })
     })
 }

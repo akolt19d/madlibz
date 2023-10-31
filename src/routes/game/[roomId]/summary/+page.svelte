@@ -6,7 +6,7 @@
     import { goto } from '$app/navigation';
 
     const socket = globalSocket
-    let { players, username, story, gameSettings } = data
+    let { players, username, story, gameSettings, isPlayerHost } = data
     let gameVariables = writable(undefined)
 
     onMount(() => {
@@ -14,9 +14,20 @@
             gameVariables.set(vars)
         })
     })
+
+    socket.on("summaryEnded", () => {
+        goto(`/game/${data.roomId}`)
+    })
+
+    function endSummary() {
+        socket.emit("endingSummary", data.roomId)
+    }
 </script>
 
 {#if $gameVariables}
+    {#if isPlayerHost}
+        <button on:click={endSummary}>End summary</button>
+    {/if}
     <ol>
         {#each $gameVariables.fills as fill}
             <li>{ fill }</li>
