@@ -6,8 +6,11 @@ export async function load({ params, cookies }) {
     const { roomId } = params
     const username = cookies.get("username")
 
-    if(!username || !isRoomCodeValid(roomId) || !(await isRoomActive(roomId)) || !(await isPlayerInRoom(username, roomId)))
+    if(!isRoomCodeValid(roomId) || !(await isRoomActive(roomId)))
         throw redirect(302, "/game")
+
+    if(!username || !(await isPlayerInRoom(username, roomId)))
+        throw redirect(302, `/game/join?r=${roomId}`)
 
     let room = await active.findOne({ roomId: roomId })
     let { players, chat } = room
