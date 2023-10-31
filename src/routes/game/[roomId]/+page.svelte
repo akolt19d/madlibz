@@ -1,5 +1,5 @@
 <script>
-    import { beforeNavigate, goto } from "$app/navigation";
+    import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import Loader from "$lib/components/Loader.svelte";
     import { globalSocket } from "$lib/socket.js";
@@ -7,10 +7,9 @@
 
     const socket = globalSocket
 
-    let { players, chat, isPlayerHost } = data
+    let { players, isPlayerHost } = data
     let loading = false
 
-    let chatInput = ""
     let gameOption = false
     let story
     let selectedStory = null
@@ -21,11 +20,6 @@
 
     onMount(() => {
         story = getStory()
-    })
-
-    socket.on("chatUpdate", (updatedChat) => {
-        console.log("Chat update!")
-        chat = updatedChat
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
@@ -46,26 +40,11 @@
         return story
     }
 
-    // beforeNavigate(() => {
-    //     leaveRoom()
-    // })
-
-    function leaveRoom() {
-        socket.emit("leavingRoom", data.roomId, () => {
-            goto("/game")
-        })
-    }
-
     async function startGame() {
         if(story)
             socket.emit("startingGame", data.roomId, await getStory())
         else 
             alert("You must choose a story!")
-    }
-
-    function sendChatMessage() {
-        socket.emit("sendingChatMessage", data.roomId, data.username, chatInput)
-        chatInput = ""
     }
 </script>
 
@@ -73,7 +52,6 @@
     <Loader />
 {:else}
     <h1>Room code: <button class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</button></h1>
-    <button on:click={leaveRoom}>Leave room</button>
     {#if isPlayerHost}
         <button on:click={startGame}>Start game</button>
     {/if}
@@ -90,6 +68,10 @@
         {:then fetchedStory}
         <div class="card">
             <h3>{fetchedStory.title}</h3>
+            <h6>{ fetchedStory.gapAmount } gaps</h6>
+            {#if fetchedStory.gapAmount > players.length}
+                <p class="warning">Warning! There aren't enough gaps for the amount of players in the lobby. Someone won't get to play.</p>
+            {/if}
             <button on:click={() => { selectedStory = fetchedStory }}>Select</button>
         </div>
         {/await}
@@ -98,24 +80,9 @@
         <input type="text" name="title" placeholder="Tytuł"><br>
         <textarea cols="30" rows="10" placeholder="Historyjka..." /><br>
     {/if}
-    <input type="text" bind:value={chatInput}><button on:click={sendChatMessage}>Send</button>
-    <div id="chat">
-        {#each chat as chatMessage}
-            <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
-        {/each}
-    </div>
-
 {/if}
 
 <style>
-    #chat {
-        border: 1px solid black;
-    }
-
-    .serverMessage {
-        color: red;
-    }
-
     .roomcode {
         cursor: pointer;
     }
@@ -123,5 +90,9 @@
     .card {
         padding: 10px;
         border: 1px solid black;
+    }
+
+    .warning {
+        color: red;
     }
 </style>

@@ -6,9 +6,8 @@
     import { onMount } from 'svelte';
 
     const socket = globalSocket
-    let { players, username, story, gameSettings, chat } = data
+    let { players, username, story, gameSettings } = data
     let input = ""
-    let chatInput = ""
     let fillValue = ""
     let gameVariables = writable(undefined)
     let orderedPlayers = []
@@ -24,11 +23,6 @@
         socket.emit("getGameVariables", data.roomId, (vars) => {
             gameVariables.set(vars)
         })
-    })
-
-    socket.on("chatUpdate", (updatedChat) => {
-        console.log("Chat update!")
-        chat = updatedChat
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
@@ -53,18 +47,9 @@
         goto(`/game/${data.roomId}/summary`)
     })
 
-    function leaveRoom() {
-        socket.emit("leavingRoom", data.roomId, () => {
-            goto("/game")
-        })
-    }
-
-    function sendChatMessage() {
-        socket.emit("sendingChatMessage", data.roomId, data.username, chatInput)
-        chatInput = ""
-    }
-
     function fillGap() {
+        if(!input)
+            return
         socket.emit("gapFilled", data.roomId, data.username, input)
         input = ""
     }
@@ -75,7 +60,6 @@
 </script>
 
 {#if $gameVariables}
-    <button on:click={leaveRoom}>Leave room</button>
     <h3>Round {$gameVariables.round}</h3>
     <h3>Turn: {$gameVariables.turn}</h3>
     <h3>Queue:</h3>
@@ -87,12 +71,6 @@
         {/each}
     </ul>
     <h4>{ story.title }</h4>
-    <input type="text" bind:value={chatInput}><button on:click={sendChatMessage}>Send</button>
-    <div id="chat">
-        {#each chat as chatMessage}
-            <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
-        {/each}
-    </div>
     {#if ($gameVariables.turn == data.playerIndex)}
         <input type="text" bind:value={input} on:input={inputValueChange}><button on:click={fillGap}>Confirm</button>
     {:else}
@@ -119,14 +97,6 @@
 
     .player:last-child {
         opacity: 15%;
-    }
-
-    #chat {
-        border: 1px solid black;
-    }
-
-    .serverMessage {
-        color: red;
     }
 
     #words-container {

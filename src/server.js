@@ -198,6 +198,9 @@ export default function configureServer(server) {
         })
 
         socket.on("sendingChatMessage", async (roomCode, username, message) => {
+            if(!message)
+                return
+
             await active.updateOne({ roomId: roomCode }, {
                 $push: {
                     chat: {
@@ -240,6 +243,9 @@ export default function configureServer(server) {
         })
 
         socket.on("gapFilled", async (roomCode, username, fill) => {
+            if(!fill)
+                return
+            
             let room = await getRoom(roomCode, active)
             let player = room.players.filter(x => x.username == username)[0]
             if(GAME_VARIABLES[roomCode].turn == player.roomIndex) {
