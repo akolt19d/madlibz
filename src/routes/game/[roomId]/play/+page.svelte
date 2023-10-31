@@ -6,8 +6,9 @@
     import { onMount } from 'svelte';
 
     const socket = globalSocket
-    let { players, username, story, gameSettings, chat, playerIndex } = data
+    let { players, username, story, gameSettings, chat } = data
     let input = ""
+    let chatInput = ""
     let gameVariables = writable(undefined)
     let orderedPlayers = []
     $: if($gameVariables) {
@@ -48,6 +49,11 @@
         })
     }
 
+    function sendChatMessage() {
+        socket.emit("sendingChatMessage", data.roomId, data.username, chatInput)
+        chatInput = ""
+    }
+
     function fillGap() {
         socket.emit("gapFilled", data.roomId, data.username, input)
         input = ""
@@ -67,6 +73,7 @@
         {/each}
     </ul>
     <h4>{ story.title }</h4>
+    <input type="text" bind:value={chatInput}><button on:click={sendChatMessage}>Send</button>
     <div id="chat">
         {#each chat as chatMessage}
             <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
