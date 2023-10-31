@@ -9,6 +9,7 @@
     let { players, username, story, gameSettings, chat } = data
     let input = ""
     let chatInput = ""
+    let fillValue = ""
     let gameVariables = writable(undefined)
     let orderedPlayers = []
     $: if($gameVariables) {
@@ -43,6 +44,15 @@
         console.log("Vars update!", $gameVariables)
     })
 
+    socket.on("updateFillValue", (updatedFillValue) => {
+        fillValue = updatedFillValue
+        console.log("Fill update!", fillValue)
+    })
+
+    socket.on("startGameSummary", () => {
+        goto(`/game/${data.roomId}/summary`)
+    })
+
     function leaveRoom() {
         socket.emit("leavingRoom", data.roomId, () => {
             goto("/game")
@@ -57,6 +67,10 @@
     function fillGap() {
         socket.emit("gapFilled", data.roomId, data.username, input)
         input = ""
+    }
+
+    function inputValueChange() {
+        socket.emit("fillValueChanged", data.roomId, data.username, input)
     }
 </script>
 
@@ -80,7 +94,9 @@
         {/each}
     </div>
     {#if ($gameVariables.turn == data.playerIndex)}
-        <input type="text" bind:value={input}><button on:click={fillGap}>Confirm</button>
+        <input type="text" bind:value={input} on:input={inputValueChange}><button on:click={fillGap}>Confirm</button>
+    {:else}
+        <p>{ fillValue }</p>
     {/if}
     <div id="words-container">
         <ol>   

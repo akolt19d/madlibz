@@ -8,10 +8,12 @@ export async function load({ parent }) {
         throw redirect(302, `/game/${data.roomId}`)
     let room = await active.findOne({ roomId: data.roomId })
     let player = room.players.filter(x => x.username == data.username)[0]
-    let { story, gameSettings } = room
+    let { gameSettings } = room
+    let fullStory = room.story
+    let { story, ...processedStory } = fullStory
     return {
         ...data,
-        story,
+        story: processedStory,
         gameSettings,
         playerIndex: player.roomIndex
     }

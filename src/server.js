@@ -45,6 +45,7 @@ async function setRoomCode(active) {
             players: [],
             chat: [],
             hasGameStarted: false,
+            hasSummaryStarted: false,
             story: null,
             gameSettings: {}
         })
@@ -69,6 +70,16 @@ function extendOrder(order, length) {
 function processStory(text) {
     let regex = /_([^_]+)_/g
     return text.match(regex).map(x => x.slice(1, x.length - 1))
+}
+
+function fillStory(text, fills) {
+    let regex = /_([^_]+)_/g
+    let gaps = text.match(regex)
+    return text.replace(regex, (match) => {
+        let i = gaps.indexOf(match)
+        gaps[i] = ""
+        return fills[i]
+    })
 }
 
 export default function configureServer(server) {
@@ -238,8 +249,28 @@ export default function configureServer(server) {
                 GAME_VARIABLES[roomCode].turn = GAME_VARIABLES[roomCode].extendedOrder[GAME_VARIABLES[roomCode].round - 1]
                 // console.log(GAME_VARIABLES)
 
-                io.to(roomCode).emit("gameVarsUpdate", GAME_VARIABLES[roomCode])
+                if(GAME_VARIABLES[roomCode].gaps.length == 0) {
+                    GAME_VARIABLES[roomCode].filledStory = fillStory(room.story.story, GAME_VARIABLES[roomCode].fills)
+                    // console.log(GAME_VARIABLES[roomCode].filledStory)
+                    io.to(roomCode).emit("startGameSummary")
+                    await active.updateOne({ roomId: roomCode }, {
+                        $set: {
+                            hasGameStarted: false,
+                            hasSummaryStarted: true
+                        }
+                    })
+                } else {
+                    io.to(roomCode).emit("gameVarsUpdate", GAME_VARIABLES[roomCode])
+                    io.to(roomCode).emit("updateFillValue", "")
+                }
             }
+        })
+
+        socket.on("fillValueChanged", async (roomCode, username, fillValue) => {
+            let room = await getRoom(roomCode, active)
+            let player = room.players.filter(x => x.username == username)[0]
+            if(GAME_VARIABLES[roomCode].turn == player.roomIndex)
+                io.to(roomCode).emit("updateFillValue", fillValue)
         })
     })
 }

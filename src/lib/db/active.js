@@ -23,3 +23,8 @@ export async function hasGameStarted(roomCode) {
     let room = await active.findOne({ roomId: roomCode })
     return room.hasGameStarted
 }
+
+export async function hasSummaryStarted(roomCode) {
+    let room = await active.findOne({ roomId: roomCode })
+    return room.hasSummaryStarted
+}
