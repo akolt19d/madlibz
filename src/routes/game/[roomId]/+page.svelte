@@ -51,10 +51,10 @@
 {#if loading}
     <Loader />
 {:else}
-    <h1>Room code: <button class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</button></h1>
     {#if isPlayerHost}
         <button on:click={startGame}>Start game</button>
     {/if}
+    <h1>Room code: <button class="roomcode" on:click={() => { navigator.clipboard.writeText(data.roomId); }}>{ data.roomId }</button></h1>
     <h3>Players ({players.length}/10):</h3>
     <ol>
         {#each players as player}
