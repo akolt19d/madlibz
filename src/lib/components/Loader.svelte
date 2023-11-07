@@ -1,21 +1,8 @@
-<div class="loader">
-    Loading...
-</div>
+<script>
+    import { ProgressRadial } from "@skeletonlabs/skeleton"
+    import { fly } from "svelte/transition";
+</script>
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-    }
-    .loader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: wheat;
-    }
-</style>
+<div class="flex-wrapper bg-surface-backdrop-token" out:fly={{ duration: 200, y: -200, opacity: 0 }}>
+    <ProgressRadial track="stroke-primary-500/25" meter="stroke-primary-500" />
+</div>
