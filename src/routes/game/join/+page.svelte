@@ -28,6 +28,9 @@
     }
 
     function joinRoom() {
+        if(!usernameInput)
+            return
+        
         socket.emit("joiningRoom", roomId, usernameInput, (isActive) => {
             if(isActive) {
                 setCookie("username", usernameInput, 30)
@@ -42,7 +45,13 @@
 {#if isUsernameSet}
     <Loader />
 {:else}
-    <label for="username">Enter your username</label>
-    <input type="text" id="username" name="username" placeholder="Username" bind:value={usernameInput}>
-    <button on:click={joinRoom}>Join</button>
+    <div class="flex-wrapper">
+        <main class="card w-96 p-12 text-center">
+            <label for="username">Enter your username</label>
+            <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+                <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={usernameInput}>
+                <button on:click={joinRoom} class="btn variant-filled-primary">Join</button>
+            </div>
+        </main>
+    </div>
 {/if}

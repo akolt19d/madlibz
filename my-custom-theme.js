@@ -6,7 +6,7 @@ export const myCustomTheme = {
 		"--theme-font-family-heading": `system-ui`,
 		"--theme-font-color-base": "0 0 0",
 		"--theme-font-color-dark": "255 255 255",
-		"--theme-rounded-base": "9999px",
+		"--theme-rounded-base": "12px",
 		"--theme-rounded-container": "12px",
 		"--theme-border-base": "1px",
 		// =~= Theme On-X Colors =~=
@@ -16,7 +16,7 @@ export const myCustomTheme = {
 		"--on-success": "255 255 255",
 		"--on-warning": "var(--color-error-500)",
 		"--on-error": "255 255 255",
-		"--on-surface": "255 255 255",
+		"--on-surface": "200 255 0",
 		// =~= Theme Colors  =~=
 		// primary | #c8ff00 
 		"--color-primary-50": "247 255 217", // #f7ffd9

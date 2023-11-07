@@ -102,7 +102,7 @@ export default function configureServer(server) {
         })
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
-            if(!(await isRoomActive(roomCode, active)) || (await isRoomFull(roomCode, active)) || !(await isUsernameAvailable(username, roomCode, active))) {
+            if(!(await isRoomActive(roomCode, active)) || (await isRoomFull(roomCode, active)) || !(await isUsernameAvailable(username, roomCode, active)) || !username || !roomCode) {
                 callback(false)
             }
             else {

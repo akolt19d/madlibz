@@ -8,7 +8,7 @@
     const socket = globalSocket
     let roomcode = data.roomCode
     let username = ""
-    let processedRoomcode = roomcode
+    let processedRoomcode = roomcode ? roomcode : "______"
     let selectionLength = 0
 
     onMount(() => {
@@ -78,7 +78,7 @@
 </script>
 
 <div class="flex-wrapper">
-    <main class="card w-96 p-12 text-center variant-outline-primary">
+    <main class="card w-96 p-12 text-center">
         <label for="username">Enter your username</label>
         <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={username}>
         <br><br>
@@ -98,25 +98,12 @@
 </div>
 
 <style lang="postcss">
-    :global(.flex-wrapper) {
-      /* background-color: red; */
-      @apply container;
-      @apply flex;
-      @apply justify-center;
-      @apply items-center;
-      @apply mx-auto;
-      @apply h-screen;
-    }
-
-    :global(.roomcode-input) {
-        @apply py-2 mx-auto my-2;
-        @apply bg-surface-700-200-token border border-surface-500-400-token rounded-full;
-        @apply grid grid-cols-6;
-        @apply cursor-text;
+    #roomcode {
+        pointer-events: none;
     }
 
     #roomcode:focus + label .roomcode-input {
-        @apply border-secondary-400-500-token;
+        @apply border-primary-400-500-token;
     }
 
     .roomcode-input div:not(:last-child)::after {
@@ -136,6 +123,6 @@
         position: absolute;
         top: 0;
         opacity: 50%;
-        @apply bg-secondary-400-500-token
+        @apply bg-primary-500-400-token
     }
 </style>
