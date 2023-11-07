@@ -1,5 +1,6 @@
 // @ts-check
 const { skeleton } = require('@skeletonlabs/tw-plugin');
+import { myCustomTheme } from "./my-custom-theme";
 import forms from "@tailwindcss/forms"
 
 /** @type {import('tailwindcss').Config} */
@@ -17,7 +18,11 @@ module.exports = {
 	},
 	plugins: [
 		skeleton({
-			themes: { preset: ["crimson"] }
+			themes: {
+				custom: [
+					myCustomTheme
+				]
+			}
 		}),
 		forms
 	]
