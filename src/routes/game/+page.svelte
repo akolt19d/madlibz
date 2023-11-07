@@ -1,6 +1,7 @@
 <script>
     import { afterNavigate, goto } from "$app/navigation";
     import { globalSocket } from "$lib/socket.js";
+    import { onMount } from "svelte";
     import { setCookie, getCookie } from 'svelte-cookie'
     export let data;
 
@@ -8,14 +9,25 @@
     let roomcode = data.roomCode
     let username = ""
     let processedRoomcode = roomcode
-    processRoomcode()
+    let selectionLength = 0
+
+    onMount(() => {
+        processRoomcode()
+    })
 
     function processRoomcode() {
+        processSelect()
         let string = roomcode
         for(let i = string.length; i < 6; i++) {
             string += "_"
         }
         processedRoomcode = string
+    }
+
+    function processSelect() {
+        let selection = window.getSelection().toString()
+        let { length } = selection
+        selectionLength = length
     }
 
     try {
@@ -67,21 +79,21 @@
 
 <div class="flex-wrapper">
     <main class="card w-96 p-12 text-center variant-outline-primary">
+        <label for="username">Enter your username</label>
+        <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={username}>
+        <br><br>
         <h1>You can</h1>
         <button on:click={createRoom} class="btn variant-filled-primary">Create a room</button>
         <p>or</p>
-        <input type="text" placeholder="room code" id="roomcode" class=" fixed t-0 r-0 opacity-0" bind:value={roomcode} on:input={processRoomcode} maxlength="6">
+        <input type="text" placeholder="room code" id="roomcode" class="fixed t-0 r-0 opacity-0" bind:value={roomcode} on:input={processRoomcode} on:select={processSelect} on:focusout={ () => { selectionLength = 0 } } maxlength="6">
         <label for="roomcode">
             <div class="roomcode-input">
-                {#each processedRoomcode as char}
-                    <div>{ char }</div>
+                {#each processedRoomcode as char, i}
+                    <div class={ i < selectionLength ? "relative selected" : "relative" } value={ char }>{ char }</div>
                 {/each}
             </div>
         </label>
         <button on:click={joinRoom} class="btn variant-filled-primary">Join a room</button>
-        <br><br>
-        <label for="username">Enter your username</label>
-        <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={username}>
     </main>
 </div>
 
@@ -97,7 +109,7 @@
     }
 
     :global(.roomcode-input) {
-        @apply py-2 px-4 mx-auto my-2;
+        @apply py-2 mx-auto my-2;
         @apply bg-surface-700-200-token border border-surface-500-400-token rounded-full;
         @apply grid grid-cols-6;
         @apply cursor-text;
@@ -105,5 +117,25 @@
 
     #roomcode:focus + label .roomcode-input {
         @apply border-secondary-400-500-token;
+    }
+
+    .roomcode-input div:not(:last-child)::after {
+        content: '';
+        width: 1px;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        @apply bg-surface-400-500-token;
+    }
+
+    .selected::before {
+        content: attr(value);
+        height: 100%;
+        width: min-content;
+        position: absolute;
+        top: 0;
+        opacity: 50%;
+        @apply bg-secondary-400-500-token
     }
 </style>
