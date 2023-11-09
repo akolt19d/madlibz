@@ -23,7 +23,7 @@
 </script>
 
 <div class="grid grid-rows-[1fr_auto] h-80 p-8">
-    <div id="chat" class="card variant-filled-surface p-4 overflow-y-scroll">
+    <div id="chat" class="card px-4 py-1 overflow-y-scroll my-2">
         {#each chat as chatMessage}
             <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
         {/each}
@@ -37,5 +37,6 @@
 <style>
     .serverMessage {
         color: red;
+        text-align: center;
     }
 </style>

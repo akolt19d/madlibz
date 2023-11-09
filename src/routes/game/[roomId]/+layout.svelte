@@ -24,7 +24,7 @@
         <Chat {chat} {username} {roomId} />
     </svelte:fragment>
     <section class="p-8">
-        <button on:click={leaveRoom} class="btn variant-filled-secondary">Leave room</button>
+        <button on:click={leaveRoom} class="btn variant-filled-error">Leave room</button>
         <slot />
     </section>
 </AppShell>

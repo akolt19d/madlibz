@@ -1,5 +1,6 @@
 <script>
     import { afterNavigate, goto } from "$app/navigation";
+    import Loader from "$lib/components/Loader.svelte";
     import { globalSocket } from "$lib/socket.js";
     import { onMount } from "svelte";
     import { setCookie, getCookie } from 'svelte-cookie'
@@ -10,6 +11,7 @@
     let username = ""
     let processedRoomcode = roomcode ? roomcode : "______"
     let selectionLength = 0
+    let loading = false;
 
     onMount(() => {
         processRoomcode()
@@ -52,6 +54,7 @@
     }
 
     async function redirectToRoom(roomId) {
+        loading = true
         setCookie("username", username, 30)
         goto(`/game/${roomId}`)
     }
@@ -77,25 +80,29 @@
     }
 </script>
 
-<div class="flex-wrapper">
-    <main class="card w-96 p-12 text-center">
-        <label for="username">Enter your username</label>
-        <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={username}>
-        <br><br>
-        <h1>You can</h1>
-        <button on:click={createRoom} class="btn variant-filled-primary">Create a room</button>
-        <p>or</p>
-        <input type="text" placeholder="room code" id="roomcode" class="fixed t-0 r-0 opacity-0" bind:value={roomcode} on:input={processRoomcode} on:select={processSelect} on:focusout={ () => { selectionLength = 0 } } maxlength="6">
-        <label for="roomcode">
-            <div class="roomcode-input">
-                {#each processedRoomcode as char, i}
-                    <div class={ i < selectionLength ? "relative selected" : "relative" } value={ char }>{ char }</div>
-                {/each}
-            </div>
-        </label>
-        <button on:click={joinRoom} class="btn variant-filled-primary">Join a room</button>
-    </main>
-</div>
+{#if loading}
+    <Loader />
+{:else}
+    <div class="flex-wrapper">
+        <main class="card w-96 p-12 text-center relative">
+            <label for="username" class="h3 mb-2">Enter your username</label>
+            <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={username}>
+            <hr class="mt-8 mb-4">
+            <h1>You can</h1>
+            <button on:click={createRoom} class="btn variant-filled-secondary">Create a room</button>
+            <p>or</p>
+            <input type="text" placeholder="room code" id="roomcode" class="fixed t-0 r-0 opacity-0" bind:value={roomcode} on:input={processRoomcode} on:select={processSelect} on:focusout={ () => { selectionLength = 0 } } maxlength="6">
+            <label for="roomcode">
+                <div class="roomcode-input">
+                    {#each processedRoomcode as char, i}
+                        <div class={ i < selectionLength ? "relative selected" : "relative" } value={ char }>{ char }</div>
+                    {/each}
+                </div>
+            </label>
+            <button on:click={joinRoom} class="btn variant-filled-tertiary">Join a room</button>
+        </main>
+    </div>
+{/if}
 
 <style lang="postcss">
     #roomcode {

@@ -60,23 +60,36 @@
 </script>
 
 {#if $gameVariables}
-    <h3>Round {$gameVariables.round}</h3>
-    <h3>Turn: {$gameVariables.turn}</h3>
-    <h3>Queue:</h3>
-    <ul>
-        {#each orderedPlayers as player}
-            {#if player}
-                <li class="player">{player.username} {player.username == username ? "(you)" : ""}</li>
-            {/if}
-        {/each}
-    </ul>
-    <h4>{ story.title }</h4>
-    {#if ($gameVariables.turn == data.playerIndex)}
-        <input type="text" bind:value={input} on:input={inputValueChange}><button on:click={fillGap}>Confirm</button>
-    {:else}
-        <p>{ fillValue }</p>
-    {/if}
-    <div id="words-container">
+    <hr class="my-4">
+    <div class="card p-4 grid grid-cols-[1fr_auto]">
+        <div class="text-center h-full grid grid-rows-[auto_1fr]">
+            <h4>{ story.title }</h4>
+            <div class="flex justify-center items-center">
+                <div class="card p-6 variant-filled-primary">
+                    {#if ($gameVariables.turn == data.playerIndex)}
+                    <div class="input-group input-group-divider grid grid-cols-[1fr_auto]">
+                        <input type="text" class="input" bind:value={input} on:input={inputValueChange}>
+                        <button on:click={fillGap} class="btn variant-filled-surface">Confirm</button>
+                    </div>
+                    {:else}
+                    <p>{ fillValue }</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+        <div class="card variant-outline-primary p-4">
+            <h3 class="card h3 py-1 px-3 w-max variant-filled-tertiary">Round {$gameVariables.round}</h3>
+            <h3>Queue:</h3>
+            <ul>
+                {#each orderedPlayers as player}
+                    {#if player}
+                        <li class="player">{player.username} {player.username == username ? "(you)" : ""}</li>
+                    {/if}
+                {/each}
+            </ul>
+        </div>
+    </div>
+    <!-- <div id="words-container">
         <ol>   
             {#each $gameVariables.gaps as gap}
                 <li>{ gap }</li>
@@ -87,7 +100,7 @@
                 <li>{ filledGap }</li>
             {/each}
         </ol>
-    </div>
+    </div> -->
 {/if}
 
 <style>

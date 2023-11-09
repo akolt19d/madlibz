@@ -41,40 +41,37 @@
     <Loader />
 {:else}
     {#if isPlayerHost}
-        <button on:click={startGame}  class="btn variant-filled-primary">Start game</button>
+        <button on:click={startGame}  class="btn variant-filled-success">Start game</button>
     {/if}
     <hr class="mt-4">
-    <TabGroup>
-        <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
-        <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
-        <svelte:fragment slot="panel">
-            {#if gameOption}
-                {#await story}
-                    <p>waiting...</p>
-                {:then fetchedStory}
-                <div class="card">
-                    <h3>{fetchedStory.title}</h3>
-                    <h6>{ fetchedStory.gapAmount } gaps</h6>
-                    {#if fetchedStory.gapAmount > players.length}
-                        <p class="warning">Warning! There aren't enough gaps for the amount of players in the lobby. Someone won't get to play.</p>
-                    {/if}
-                    <button on:click={() => { selectedStory = fetchedStory }}>Select</button>
-                </div>
-                {/await}
-            {:else}
-                <input type="text" name="title" placeholder="Title" class="input"><br>
-                <textarea cols="30" rows="10" placeholder="Story..." class="input" /><br>
-            {/if}
-        </svelte:fragment>
-    </TabGroup>
+    <div class="card my-2 p-6">
+        <TabGroup>
+            <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
+            <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
+            <svelte:fragment slot="panel">
+                {#if gameOption}
+                    {#await story}
+                        <p>waiting...</p>
+                    {:then fetchedStory}
+                    <div class="card variant-filled-surface p-2">
+                        <h3>{fetchedStory.title}</h3>
+                        <h6>{ fetchedStory.gapAmount } gaps</h6>
+                        {#if fetchedStory.gapAmount > players.length}
+                            <p class="warning">Warning! There aren't enough gaps for the amount of players in the lobby. Someone won't get to play.</p>
+                        {/if}
+                        <button on:click={() => { selectedStory = fetchedStory }}>Select</button>
+                    </div>
+                    {/await}
+                {:else}
+                    <input type="text" name="title" placeholder="Title" class="input mb-1"><br>
+                    <textarea cols="30" rows="10" placeholder="Story..." class="input" /><br>
+                {/if}
+            </svelte:fragment>
+        </TabGroup>
+    </div>
 {/if}
 
 <style>
-    .card {
-        padding: 10px;
-        border: 1px solid black;
-    }
-
     .warning {
         color: var(--color-error-500);
     }
