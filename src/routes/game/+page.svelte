@@ -84,7 +84,7 @@
     <Loader />
 {:else}
     <div class="flex-wrapper">
-        <main class="card w-96 p-12 text-center relative bbb">
+        <main class="card w-96 p-12 text-center relative bbb bt-shadow-r">
             <label for="username" class="h3 mb-2">Enter your username</label>
             <input type="text" id="username" name="username" placeholder="Username" class="input border-primary-700 bg-primary-500 focus:border-primary-500 focus:bg-transparent focus:border-dashed" bind:value={username}>
             <hr class="mt-8 mb-4 !border-t-4 !border-dashed !border-black/25">
@@ -95,7 +95,7 @@
             <label for="roomcode">
                 <div class="roomcode-input">
                     {#each processedRoomcode as char, i}
-                        <div class={ i < selectionLength ? "relative selected" : "relative" } value={ char }>{ char }</div>
+                        <div class={ i < selectionLength ? "relative selected" : "relative" } data-value={ char }>{ char }</div>
                     {/each}
                 </div>
             </label>
@@ -128,7 +128,7 @@
     }
 
     .selected::before {
-        content: attr(value);
+        content: attr(data-value);
         height: 100%;
         width: min-content;
         position: absolute;

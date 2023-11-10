@@ -44,7 +44,7 @@
         <button on:click={startGame}  class="btn variant-filled-success">Start game</button>
     {/if}
     <hr class="mt-4">
-    <div class="card my-2 p-6 bbb">
+    <div class="card my-2 p-6 bbb bt-shadow-r">
         <TabGroup>
             <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
             <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
@@ -71,7 +71,7 @@
     </div>
 {/if}
 
-<style>
+<style>    
     .warning {
         color: var(--color-error-500);
     }

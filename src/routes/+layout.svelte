@@ -39,13 +39,21 @@
 
     :global(.bg) {
         @apply bg-tertiary-500;
-        background-image: url("/GeometricPattern5.svg");
-        background-size: 150%;
+        background-image: url("/seamless-pattern-01.svg");
+        background-size: 25%;
         background-blend-mode:soft-light
     }
 
     :global(.bbb) {
-        @apply border-black border-[1rem];
+        @apply border-black border-[.5rem];
+    }
+
+    :global(.bt-shadow-r) {
+        box-shadow: 6px 10px 0px 6px black;
+    }
+
+    :global(.bt-shadow-l) {
+        box-shadow: -6px 10px 0px 6px black;
     }
 /* 
     :global(button) {

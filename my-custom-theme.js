@@ -6,8 +6,8 @@ export const myCustomTheme = {
 		"--theme-font-family-heading": `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace`,
 		"--theme-font-color-base": "0 0 0",
 		"--theme-font-color-dark": "255 255 255",
-		"--theme-rounded-base": "0px",
-		"--theme-rounded-container": "0px",
+		"--theme-rounded-base": "8px",
+		"--theme-rounded-container": "8px",
 		"--theme-border-base": "6px",
 		// =~= Theme On-X Colors =~=
 		"--on-primary": "0 0 0",
