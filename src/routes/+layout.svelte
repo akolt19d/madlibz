@@ -55,12 +55,36 @@
     :global(.bt-shadow-l) {
         box-shadow: -6px 10px 0px 6px black;
     }
-/* 
-    :global(button) {
-        @apply btn variant-filled-primary;
+
+    :global(.btn-primary) {
+        @apply btn variant-filled-primary border-4 border-primary-700;
     }
 
-    :global(input), :global(textarea) {
-        @apply input;
-    } */
+    :global(.btn-secondary) {
+        @apply btn variant-filled-secondary border-4 border-secondary-700;
+    }
+
+    :global(.btn-tertiary) {
+        @apply btn variant-filled-tertiary border-4 border-tertiary-700;
+    }
+
+    :global(.btn-success) {
+        @apply btn variant-filled-success border-4 border-success-700;
+    }
+
+    :global(.btn-error) {
+        @apply btn variant-filled-error border-4 border-error-700;
+    }
+
+    :global(.input-primary) {
+        @apply input border-primary-700 bg-primary-500 focus:border-primary-500 focus:bg-transparent focus:border-dashed focus:!ring-transparent;
+    }
+
+    :global(.input-secondary) {
+        @apply input border-secondary-700 bg-secondary-500 focus:border-secondary-500 focus:bg-transparent focus:border-dashed focus:!ring-transparent;
+    }
+
+    :global(.input-tertiary) {
+        @apply input border-tertiary-700 bg-tertiary-500 focus:border-tertiary-500 focus:bg-transparent focus:border-dashed focus:!ring-transparent;
+    }
 </style>

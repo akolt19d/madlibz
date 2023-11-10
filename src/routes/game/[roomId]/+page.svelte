@@ -35,16 +35,24 @@
         else 
             alert("You must choose a story!")
     }
+
+    function leaveRoom() {
+        socket.emit("leavingRoom", data.roomId, () => {
+            goto("/game")
+        })
+    }
 </script>
 
 {#if loading}
     <Loader />
 {:else}
-    {#if isPlayerHost}
-        <button on:click={startGame}  class="btn variant-filled-success">Start game</button>
-    {/if}
-    <hr class="mt-4">
-    <div class="card my-2 p-6 bbb bt-shadow-r">
+    <div>
+        <button on:click={leaveRoom} class="btn-error shadow-[-2px_2px_0_2px_#8b3731]">Leave room</button>
+        {#if isPlayerHost}
+            <button on:click={startGame}  class="btn-success shadow-[-2px_2px_0_2px_#3a8146]">Start game</button>
+        {/if}
+    </div>
+    <div class="card my-4 p-6 bbb bt-shadow-r">
         <TabGroup>
             <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
             <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>

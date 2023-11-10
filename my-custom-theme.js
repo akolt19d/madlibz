@@ -13,7 +13,7 @@ export const myCustomTheme = {
 		"--on-primary": "0 0 0",
 		"--on-secondary": "0 0 0",
 		"--on-tertiary": "0 0 0",
-		"--on-success": "0 0 0",
+		"--on-success": "255 255 255",
 		"--on-warning": "0 0 0",
 		"--on-error": "255 255 255",
 		"--on-surface": "0 0 0",

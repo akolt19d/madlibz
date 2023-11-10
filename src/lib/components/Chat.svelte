@@ -22,21 +22,27 @@
     }
 </script>
 
-<div class="grid grid-rows-[1fr_auto] h-80 p-8">
-    <div id="chat" class="card px-4 py-1 overflow-y-scroll my-2 bbb">
+<div class="card variant-filled-primary grid grid-rows-[1fr_auto] h-80 p-8 gap-4 bbb bt-shadow-r">
+    <div id="chat" class="card px-4 py-1 overflow-y-auto my-2 bg-primary-300 bbb !border-primary-700">
         {#each chat as chatMessage}
-            <p class={chatMessage.user ? "chatMessage" : "serverMessage"}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
+            <p class={chatMessage.user ? "chatMessage" : "serverMessage"} data-value={chatMessage.message}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
         {/each}
     </div>
-    <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-        <input type="text" id="chat-input" on:keypress={processKeyPress} bind:value={chatInput}>
-        <button on:click={sendChatMessage} class="btn variant-filled-primary" id="chat-button">Send</button>
+    <div class="input-group input-group-divider !bg-primary-300 !border-primary-700 focus-within:!border-dashed focus-within:!border-primary-500 grid-cols-[1fr_auto]">
+        <input type="text" id="chat-input" class="!bg-primary-300 focus:!bg-transparent" placeholder="Enter message here" on:keypress={processKeyPress} bind:value={chatInput}>
+        <button on:click={sendChatMessage} class="btn variant-filled-primary !rounded-r-none" id="chat-button">Send</button>
     </div>
 </div>
 
-<style>
+<style lang="postcss">
     .serverMessage {
-        color: red;
-        text-align: center;
+        @apply w-max mx-auto py-1 px-2;
+        @apply border-red-600 border-4 border-dashed;
+        @apply text-center;
+        @apply text-red-600;
+    }
+
+    #chat > p {
+        @apply my-1;
     }
 </style>

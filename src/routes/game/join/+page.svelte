@@ -46,12 +46,10 @@
     <Loader />
 {:else}
     <div class="flex-wrapper">
-        <main class="card w-96 p-12 text-center">
+        <main class="card w-96 p-12 text-center relative bbb bt-shadow-r">
             <label for="username">Enter your username</label>
-            <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={usernameInput}>
-                <button on:click={joinRoom} class="btn variant-filled-primary">Join</button>
-            </div>
+            <input type="text" id="username" name="username" placeholder="Username" class="input-primary mb-2 mt-1" bind:value={usernameInput}>
+            <button on:click={joinRoom} class="btn-success shadow-[2px_2px_0_2px_#3a8146]">Join room {roomId}</button>
         </main>
     </div>
 {/if}
