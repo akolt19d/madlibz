@@ -16,7 +16,7 @@
     }
 </script>
 
-<AppShell>
+<AppShell slotSidebarLeft="card">
     <svelte:fragment slot="sidebarLeft">
         <PlayerPanel {players} {roomId} />
     </svelte:fragment>

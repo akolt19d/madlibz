@@ -84,12 +84,12 @@
     <Loader />
 {:else}
     <div class="flex-wrapper">
-        <main class="card w-96 p-12 text-center relative">
+        <main class="card w-96 p-12 text-center relative bbb">
             <label for="username" class="h3 mb-2">Enter your username</label>
-            <input type="text" id="username" name="username" placeholder="Username" class="input" bind:value={username}>
-            <hr class="mt-8 mb-4">
+            <input type="text" id="username" name="username" placeholder="Username" class="input border-primary-700 bg-primary-500 focus:border-primary-500 focus:bg-transparent focus:border-dashed" bind:value={username}>
+            <hr class="mt-8 mb-4 !border-t-4 !border-dashed !border-black/25">
             <h1>You can</h1>
-            <button on:click={createRoom} class="btn variant-filled-secondary">Create a room</button>
+            <button on:click={createRoom} class="btn variant-filled-secondary border-4 border-secondary-700">Create a room</button>
             <p>or</p>
             <input type="text" placeholder="room code" id="roomcode" class="fixed t-0 r-0 opacity-0" bind:value={roomcode} on:input={processRoomcode} on:select={processSelect} on:focusout={ () => { selectionLength = 0 } } maxlength="6">
             <label for="roomcode">
@@ -99,7 +99,7 @@
                     {/each}
                 </div>
             </label>
-            <button on:click={joinRoom} class="btn variant-filled-tertiary">Join a room</button>
+            <button on:click={joinRoom} class="btn variant-filled-tertiary border-4 border-tertiary-700">Join a room</button>
         </main>
     </div>
 {/if}
@@ -110,17 +110,21 @@
     }
 
     #roomcode:focus + label .roomcode-input {
-        @apply border-primary-400-500-token;
+        @apply border-primary-500 bg-transparent border-dashed;
     }
 
     .roomcode-input div:not(:last-child)::after {
         content: '';
-        width: 1px;
+        width: 4px;
         height: 100%;
         position: absolute;
         top: 0;
-        right: 0;
-        @apply bg-surface-400-500-token;
+        right: -2px;
+        @apply bg-primary-700;
+    }
+
+    #roomcode:focus + label .roomcode-input div:not(:last-child)::after {
+        @apply bg-primary-500;
     }
 
     .selected::before {

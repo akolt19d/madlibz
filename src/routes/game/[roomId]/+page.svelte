@@ -44,7 +44,7 @@
         <button on:click={startGame}  class="btn variant-filled-success">Start game</button>
     {/if}
     <hr class="mt-4">
-    <div class="card my-2 p-6">
+    <div class="card my-2 p-6 bbb">
         <TabGroup>
             <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
             <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
