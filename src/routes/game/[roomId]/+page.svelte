@@ -4,6 +4,7 @@
     import { globalSocket } from "$lib/socket.js";
     import { TabGroup, Tab, ProgressRadial } from '@skeletonlabs/skeleton';
     import StoryCard from "$lib/components/StoryCard.svelte";
+    import { fade } from "svelte/transition";
     export let data;
 
     const socket = globalSocket
@@ -15,9 +16,26 @@
     let story = null
     let storyId = "65381226d28bcf3c21673659"
     let selectedStory = null
+    let isGameStarting = false
+    let countdown = 0
+
+    // setTimeout(() => {
+    //     isGameStarting = true
+    // }, 1000)
 
     socket.on("startGame", () => {
-        goto(`/game/${data.roomId}/play`)
+        isGameStarting = true
+        countdown = 3
+        let interval = setInterval(() => {
+            console.log(countdown)
+            countdown -= 1
+            if(countdown == 0) {
+                clearInterval(interval)
+                setTimeout(() => {
+                    goto(`/game/${data.roomId}/play`)
+                }, 1000)
+            }
+        }, 1000)
     })
 
     socket.on("playerUpdate", (updatedPlayers) => {
@@ -58,6 +76,16 @@
     }
 </script>
 
+{#if isGameStarting}
+    <div transition:fade={{ duration: 250 }} class="fixed w-screen h-screen top-0 left-0 bg-black/40 flex justify-center items-center z-50">
+        <div class="card bg-white py-8 gap-4 bbb bt-shadow-l relative !text-center">
+            {#key countdown}
+                <p transition:fade={{ duration: 250 }} class="h1 bt-text-l !absolute w-full" data-value={ countdown ? countdown : "Start!" }>{ countdown ? countdown : "Start!" }</p>
+            {/key}
+            <p class="h1 bt-text-l opacity-0 mx-8">Start!</p>
+        </div>
+    </div>
+{/if}
 {#if loading}
     <Loader />
 {:else}

@@ -78,7 +78,7 @@ function fillStory(text, fills) {
     return text.replace(regex, (match) => {
         let i = gaps.indexOf(match)
         gaps[i] = ""
-        return fills[i]
+        return `<span class="text-error-500 underline">${fills[i]}</span>`
     })
 }
 
