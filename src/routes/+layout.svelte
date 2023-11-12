@@ -87,4 +87,26 @@
     :global(.input-tertiary) {
         @apply input border-tertiary-700 bg-tertiary-500 focus:border-tertiary-500 focus:bg-transparent focus:border-dashed focus:!ring-transparent;
     }
+
+    :global(.bt-text-l), :global(.bt-text-r) {
+        @apply text-black relative z-10 font-bold;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: black;
+    }
+
+    :global(.bt-text-r::before) {
+        content: attr(data-value);
+        @apply text-primary-500;
+        position: absolute;
+        transform: translate(-2px, -2px);
+        z-index: 1;
+    }
+
+    :global(.bt-text-l::before) {
+        content: attr(data-value);
+        @apply text-primary-500;
+        position: absolute;
+        transform: translate(2px, -2px);
+        z-index: 1;
+    }
 </style>

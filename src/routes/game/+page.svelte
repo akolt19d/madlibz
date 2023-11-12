@@ -87,7 +87,7 @@
         <main class="card w-96 p-12 text-center relative bbb bt-shadow-r">
             <label for="username" class="h3 mb-2">Enter your username</label>
             <input type="text" id="username" name="username" placeholder="Username" class="input-primary" bind:value={username}>
-            <hr class="mt-8 mb-4 !border-t-4 !border-dashed !border-black/25">
+            <hr class="mt-8 mb-4 !border-t-4 !border-dashed !border-black">
             <h1>You can</h1>
             <button on:click={createRoom} class="btn-secondary">Create a room</button>
             <p>or</p>

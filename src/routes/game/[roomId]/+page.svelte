@@ -1,37 +1,33 @@
 <script>
     import { goto } from "$app/navigation";
-    import { onMount } from "svelte";
     import Loader from "$lib/components/Loader.svelte";
     import { globalSocket } from "$lib/socket.js";
     import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+    import StoryCard from "$lib/components/StoryCard.svelte";
     export let data;
 
     const socket = globalSocket
 
-    let { players, isPlayerHost } = data
+    let { isPlayerHost } = data
     let loading = false
 
-    let gameOption = false
-    let story
-    let selectedStory = null
-
-    onMount(() => {
-        story = getStory()
-    })
+    let gameOption = true
+    let story = null
+    let storyId = "65381226d28bcf3c21673659"
 
     socket.on("startGame", () => {
         goto(`/game/${data.roomId}/play`)
     })
 
-    async function getStory() {
-        const res = await fetch('/api/story?id=65381226d28bcf3c21673659')
-        const story = await res.json()
-        return story
+    async function getStory(id) {
+        const res = await fetch(`/api/story?id=${id}`)
+        story = await res.json()
+        console.log(story)
     }
 
     async function startGame() {
         if(story)
-            socket.emit("startingGame", data.roomId, await getStory())
+            socket.emit("startingGame", data.roomId, story)
         else 
             alert("You must choose a story!")
     }
@@ -47,29 +43,34 @@
     <Loader />
 {:else}
     <div>
-        <button on:click={leaveRoom} class="btn-error shadow-[-2px_2px_0_2px_#8b3731]">Leave room</button>
+        <button on:click={leaveRoom} class="btn-error shadow-[-2px_2px_0_2px_#8b3731] ml-[2px]">Leave room</button>
         {#if isPlayerHost}
-            <button on:click={startGame}  class="btn-success shadow-[-2px_2px_0_2px_#3a8146]">Start game</button>
+            <button on:click={startGame} class="btn-success shadow-[-2px_2px_0_2px_#3a8146]" disabled={!story}>Start game</button>
         {/if}
     </div>
     <div class="card my-4 p-6 bbb bt-shadow-r">
-        <TabGroup>
+        <TabGroup active="border-black border-solid border-b-4" hover="border-transparent hover:border-black/25 hover:border-dashed border-b-4" border="border-b-4">
             <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
             <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
             <svelte:fragment slot="panel">
                 {#if gameOption}
-                    {#await story}
-                        <p>waiting...</p>
-                    {:then fetchedStory}
-                    <div class="card variant-filled-surface p-2">
-                        <h3>{fetchedStory.title}</h3>
-                        <h6>{ fetchedStory.gapAmount } gaps</h6>
-                        {#if fetchedStory.gapAmount > players.length}
-                            <p class="warning">Warning! There aren't enough gaps for the amount of players in the lobby. Someone won't get to play.</p>
-                        {/if}
-                        <button on:click={() => { selectedStory = fetchedStory }}>Select</button>
+                    <div class="grid grid-cols-[auto_1fr]">
+                        <div class="h-full w-fit px-4">
+                            <label for="story-id">Enter story identificator:</label>
+                            <input type="text" id="story-id" placeholder="Story ID" class="input-primary my-2" maxlength="24" bind:value={storyId}>
+                            <button class="btn-secondary" on:click={() => { getStory(storyId) }}>Select</button>
+                            <div>
+                                {#if !story}
+                                    <p class="h3 text-error-500 font-bold">No story selected.</p>
+                                {/if}
+                            </div>
+                        </div>
+                        <div class="p-4 w-max">
+                            {#if story}
+                                <StoryCard {story} />
+                            {/if}
+                        </div>
                     </div>
-                    {/await}
                 {:else}
                     <input type="text" name="title" placeholder="Title" class="input mb-1"><br>
                     <textarea cols="30" rows="10" placeholder="Story..." class="input" /><br>
