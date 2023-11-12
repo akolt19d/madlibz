@@ -19,6 +19,17 @@
         goto(`/game/${data.roomId}`)
     })
 
+    socket.on("playerUpdate", (updatedPlayers) => {
+        console.log("Player update!")
+        players = updatedPlayers.map(x => {
+            let { id, ...player } = x
+            return player
+        })
+
+        let host = players.filter(x => x.isHost)[0]
+        isPlayerHost = host.username == data.username
+    })
+
     function endSummary() {
         socket.emit("endingSummary", data.roomId)
     }

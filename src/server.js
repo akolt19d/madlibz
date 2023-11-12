@@ -158,8 +158,19 @@ export default function configureServer(server) {
                             }
                         }
                     })
+                    let updatedRoom = await getRoom(roomCode, active)
+                    if(updatedRoom.players.filter(x => x.isHost).length == 0) {
+                        await active.updateOne({ roomId: roomCode }, {
+                            $set: {
+                                "players.0.isHost": true
+                            }
+                        })
+
+                        updatedRoom = await getRoom(roomCode, active)
+                        console.log("Host changed!")
+                    }
+
                     if(room.hasGameStarted) {
-                        let updatedRoom = await getRoom(roomCode, active)
                         let updatedIndexes = updatedRoom.players.map(x => x.roomIndex)
                         Array.from(GAME_VARIABLES[roomCode].order).forEach(i => {
                             if(!updatedIndexes.includes(i)) {

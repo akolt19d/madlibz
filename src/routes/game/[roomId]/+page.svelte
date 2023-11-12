@@ -26,6 +26,9 @@
             let { id, ...player } = x
             return player
         })
+
+        let host = players.filter(x => x.isHost)[0]
+        isPlayerHost = host.username == data.username
     })
 
     socket.on("newStory", async (id) => {
