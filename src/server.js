@@ -292,5 +292,12 @@ export default function configureServer(server) {
                 io.to(roomCode).emit("summaryEnded")
             }
         })
+
+        socket.on("selectingStory", async (roomCode, storyId) => {
+            let room = await getRoom(roomCode, active)
+            let host = room.players.filter(x => x.isHost)[0]
+            if(host.id == socket.id) 
+                socket.broadcast.to(roomCode).emit("newStory", storyId)
+        })
     })
 }

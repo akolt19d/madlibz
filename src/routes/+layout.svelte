@@ -72,6 +72,10 @@
         @apply btn variant-filled-success border-4 border-success-700;
     }
 
+    :global(.btn-warning) {
+        @apply btn variant-filled-warning border-4 border-warning-700;
+    }
+
     :global(.btn-error) {
         @apply btn variant-filled-error border-4 border-error-700;
     }

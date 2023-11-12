@@ -1,6 +1,7 @@
 <script>
     import { globalSocket } from "$lib/socket";
-  import { fly } from "svelte/transition";
+    import { flip } from "svelte/animate";
+    import { fly } from "svelte/transition";
     export let players, roomId;
     const socket = globalSocket
 
@@ -19,27 +20,14 @@
     <hr class="my-4 !border-t-4 !border-dashed !border-black">
     <h5 class="h5 mb-2 font-bold">Players ({players.length}/10):</h5>
     <ol>
-        {#each players as player}
-            <li class="card px-3 py-2 m-3 text-center variant-filled-tertiary border-4 border-tertiary-700 shadow-[-2px_2px_0px_2px_#91b16a]" transition:fly={{ duration: 100, x: -20, opacity: 0 }}>{player.username} {player.isHost ? "👑" : ""}</li>
+        {#each players as player (player.username)}
+            <li animate:flip={{ delay: 100, duration: 100 }} class="card px-3 py-2 m-3 text-center variant-filled-tertiary border-4 border-tertiary-700 shadow-[-2px_2px_0px_2px_#91b16a]" transition:fly={{ duration: 100, x: -20, opacity: 0 }}>{player.username} {player.isHost ? "👑" : ""}</li>
         {/each}
     </ol>
 </div>
 
 <style lang="postcss">
-    /* #copy-roomcode {
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: black;
-    } */
-
     #copy-roomcode:hover {
         filter: brightness(1.15);
     }
-
-    /* #copy-roomcode::before {
-        content: attr(value);
-        @apply text-primary-500;
-        position: absolute;
-        z-index: 1;
-        @apply bottom-[2px] left-[2px];
-    } */
 </style>

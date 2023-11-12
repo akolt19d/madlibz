@@ -6,6 +6,7 @@
     import { onMount } from 'svelte';
     import { ProgressBar } from '@skeletonlabs/skeleton';
   import { flip } from 'svelte/animate';
+  import { fly } from 'svelte/transition';
 
     const socket = globalSocket
     let { players, username, story, gameSettings } = data
@@ -83,7 +84,9 @@
                 <ProgressBar value={(($gameVariables.round-1)/story.gapAmount) * 100} track="bg-secondary-200" meter="bg-primary-500 transition-[width]" height="h-4" class="my-2 border-4 border-black !shadow-[1px_1px_0_1px_black]" />
             </div>
             <div class="flex justify-center flex-row items-center relative">
-                <div class="card w-fit mx-auto p-2 variant-filled-warning border-4 border-warning-700 shadow-[0_2px_0_2px_#b57e40] absolute top-0">Please input: <span>{ $gameVariables.gaps[0] }</span></div>
+                {#key $gameVariables.gaps.length}
+                    <div in:fly={{ duration: 400, x: -400, opacity: 0 }} out:fly={{ duration: 400, x: 400, opacity: 0 }} class="card w-fit mx-auto p-2 variant-filled-warning border-4 border-warning-700 shadow-[0_2px_0_2px_#b57e40] absolute top-0">Please input: <span>{ $gameVariables.gaps[0] }</span></div>
+                {/key}
                 <div class="card p-6 variant-filled-tertiary border-4 border-tertiary-700 shadow-[2px_2px_0_2px_#91b16a]">
                     {#if ($gameVariables.turn == data.playerIndex)}
                         <p class="h3 mb-2">It's your turn, <span  class="bt-text-r before:text-secondary-500" data-value={ orderedPlayers[0].username }>{ orderedPlayers[0].username }</span></p>

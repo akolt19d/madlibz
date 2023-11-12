@@ -2,26 +2,42 @@
     import { goto } from "$app/navigation";
     import Loader from "$lib/components/Loader.svelte";
     import { globalSocket } from "$lib/socket.js";
-    import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+    import { TabGroup, Tab, ProgressRadial } from '@skeletonlabs/skeleton';
     import StoryCard from "$lib/components/StoryCard.svelte";
     export let data;
 
     const socket = globalSocket
 
-    let { isPlayerHost } = data
+    let { isPlayerHost, players } = data
     let loading = false
 
     let gameOption = true
     let story = null
     let storyId = "65381226d28bcf3c21673659"
+    let selectedStory = null
 
     socket.on("startGame", () => {
         goto(`/game/${data.roomId}/play`)
     })
 
+    socket.on("playerUpdate", (updatedPlayers) => {
+        console.log("Player update!")
+        players = updatedPlayers.map(x => {
+            let { id, ...player } = x
+            return player
+        })
+    })
+
+    socket.on("newStory", async (id) => {
+        const res = await fetch(`/api/story?id=${id}`)
+        selectedStory = await res.json()
+    })
+
     async function getStory(id) {
         const res = await fetch(`/api/story?id=${id}`)
         story = await res.json()
+        if(story)
+            socket.emit("selectingStory", data.roomId, id)
         console.log(story)
     }
 
@@ -49,39 +65,51 @@
         {/if}
     </div>
     <div class="card my-4 p-6 bbb bt-shadow-r">
-        <TabGroup active="border-black border-solid border-b-4" hover="border-transparent hover:border-black/25 hover:border-dashed border-b-4" border="border-b-4">
-            <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
-            <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
-            <svelte:fragment slot="panel">
-                {#if gameOption}
-                    <div class="grid grid-cols-[auto_1fr]">
-                        <div class="h-full w-fit px-4">
-                            <label for="story-id">Enter story identificator:</label>
-                            <input type="text" id="story-id" placeholder="Story ID" class="input-primary my-2" maxlength="24" bind:value={storyId}>
-                            <button class="btn-secondary" on:click={() => { getStory(storyId) }}>Select</button>
-                            <div>
+        {#if isPlayerHost}
+            <TabGroup active="border-black border-solid border-b-4" hover="border-transparent hover:border-black/25 hover:border-dashed border-b-4" border="border-b-4">
+                <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
+                <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
+                <svelte:fragment slot="panel">
+                    {#if gameOption}
+                        <div class="grid grid-cols-2">
+                            <div class="h-full w-fit px-4">
+                                <label for="story-id">Enter story identificator:</label>
+                                <input type="text" id="story-id" placeholder="Story ID" class="input-primary my-2" maxlength="24" bind:value={storyId}>
+                                <button class="btn-secondary" on:click={() => { getStory(storyId) }}>Select</button>
                                 {#if !story}
-                                    <p class="h3 text-error-500 font-bold">No story selected.</p>
+                                    <p class="h3 mt-2 text-error-500 font-bold">No story selected.</p>
+                                {:else}
+                                    {#key players.length}
+                                        {#if story.gapAmount < players.length}
+                                            <p class="mt-2 text-error-500 font-bold">The story you selected is too short for the size of the lobby. Not everyone is going to play.</p>
+                                        {/if}
+                                    {/key} 
+                                {/if}
+                            </div>
+                            <div class="p-4 w-max">
+                                {#if story}
+                                    <StoryCard {story} />
                                 {/if}
                             </div>
                         </div>
-                        <div class="p-4 w-max">
-                            {#if story}
-                                <StoryCard {story} />
-                            {/if}
-                        </div>
-                    </div>
+                    {:else}
+                        <input type="text" name="title" placeholder="Title" class="input mb-1"><br>
+                        <textarea cols="30" rows="10" placeholder="Story..." class="input" /><br>
+                    {/if}
+                </svelte:fragment>
+            </TabGroup>
+        {:else}
+            <div class="w-full h-full flex justify-center items-center !flex-col gap-4">
+                {#if selectedStory}
+                    <p>Selected story:</p>
+                    {#key selectedStory._id}
+                        <StoryCard story={selectedStory} />
+                    {/key}
                 {:else}
-                    <input type="text" name="title" placeholder="Title" class="input mb-1"><br>
-                    <textarea cols="30" rows="10" placeholder="Story..." class="input" /><br>
+                    <p>The host is currently setting up the game.</p>
+                    <ProgressRadial track="stroke-transparent" meter="stroke-black" stroke={150} />
                 {/if}
-            </svelte:fragment>
-        </TabGroup>
+            </div>
+        {/if}
     </div>
 {/if}
-
-<style>    
-    .warning {
-        color: var(--color-error-500);
-    }
-</style>

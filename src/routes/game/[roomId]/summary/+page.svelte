@@ -34,16 +34,18 @@
     <div>
         <button on:click={leaveRoom} class="btn-error shadow-[-2px_2px_0_2px_#8b3731] ml-[2px]">Leave room</button>
         {#if isPlayerHost}
-            <button on:click={endSummary}>End summary</button>
+            <button on:click={endSummary} class="btn-warning shadow-[-2px_2px_0_2px_#b57e40]">End summary</button>
         {/if}
     </div>
-    <ol>
-        {#each $gameVariables.fills as fill}
-            <li>{ fill }</li>
-        {/each}
-    </ol>
-    <div>
-        <h3>{ story.title }</h3>
-        <p>{ $gameVariables.filledStory }</p>
+    <div class="card my-4 p-6 bbb bt-shadow-r">
+        <ol>
+            {#each $gameVariables.fills as fill}
+                <li>{ fill }</li>
+            {/each}
+        </ol>
+        <div>
+            <h3>{ story.title }</h3>
+            <p>{ $gameVariables.filledStory }</p>
+        </div>
     </div>
 {/if}
