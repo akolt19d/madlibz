@@ -1,10 +1,12 @@
 <script>
     import "../app.postcss";
+    import ViewTransition from "$lib/components/ViewTransition.svelte";
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
     import { storePopup } from '@skeletonlabs/skeleton';
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
 
+<ViewTransition />
 <slot />
 
 <style lang="postcss">
