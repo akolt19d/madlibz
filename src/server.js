@@ -75,11 +75,21 @@ function processStory(text) {
 function fillStory(text, fills) {
     let regex = /_([^_]+)_/g
     let gaps = text.match(regex)
+    
     return text.replace(regex, (match) => {
         let i = gaps.indexOf(match)
         gaps[i] = ""
-        return `<span class="text-error-500 underline">${fills[i]}</span>`
+        return `<span class="filled-gap text-error-500 underline">${fills[i]}</span>`
     })
+    // let regex2 = /(a\/an\s.)/g
+    // return filledStory.replace(regex2, (match) => {
+    //     const vowels = ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U"]
+    //     let letter = match[match.length-1]
+    //     if(vowels.includes(letter))
+    //       return `an ${letter}`
+    //     else 
+    //       return `a ${letter}`
+    // })
 }
 
 export default function configureServer(server) {
@@ -304,11 +314,16 @@ export default function configureServer(server) {
             }
         })
 
-        socket.on("selectingStory", async (roomCode, storyId) => {
+        socket.on("selectingStory", async (roomCode, story) => {
             let room = await getRoom(roomCode, active)
             let host = room.players.filter(x => x.isHost)[0]
-            if(host.id == socket.id) 
-                socket.broadcast.to(roomCode).emit("newStory", storyId)
+            if(host.id == socket.id) {
+                if(story)
+                    GAME_VARIABLES[roomCode] = { selectedStory: story }
+                else 
+                    GAME_VARIABLES[roomCode] = {}
+                socket.broadcast.to(roomCode).emit("gameVarsUpdate", GAME_VARIABLES[roomCode])
+            }
         })
     })
 }

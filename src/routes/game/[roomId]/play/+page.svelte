@@ -95,8 +95,10 @@
                             <button on:click={fillGap} class="btn variant-filled-primary !rounded-r-none" id="prompt-button">Confirm</button>
                         </div>
                     {:else}
-                        <p class="h3 mb-2">It's <span  class="bt-text-r before:text-secondary-500" data-value={ orderedPlayers[0].username }>{ orderedPlayers[0].username }</span>'s turn</p>
-                        <input disabled class="input-primary !bg-primary-300 focus:!bg-transparent" value={ fillValue }>
+                        {#if orderedPlayers[0]}
+                            <p class="h3 mb-2">It's <span  class="bt-text-r before:text-secondary-500" data-value={ orderedPlayers[0].username }>{ orderedPlayers[0].username }</span>'s turn</p>
+                            <input disabled class="input-primary !bg-primary-300 focus:!bg-transparent" value={ fillValue }>
+                        {/if}
                     {/if}
                 </div>
             </div>
@@ -108,7 +110,7 @@
             </div>
             <ul class="grid grid-rows-5">
                 {#if orderedPlayers.length > 0}
-                    {#each orderedPlayers as player, i (i+$gameVariables.round)}
+                    {#each orderedPlayers.filter(x => x) as player, i (i+$gameVariables.round)}
                         <li animate:flip={{ duration: 350 }} class="player card p-2 my-2 flex justify-center items-center font-bold variant-filled-secondary border-4 border-secondary-700 shadow-[2px_2px_0_2px_#9e5f8d]">{player.username} {player.username == username ? "(you)" : ""}</li>
                     {/each}
                 {/if}

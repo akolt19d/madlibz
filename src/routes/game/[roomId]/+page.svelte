@@ -2,12 +2,21 @@
     import { goto } from "$app/navigation";
     import Loader from "$lib/components/Loader.svelte";
     import { globalSocket } from "$lib/socket.js";
-    import { TabGroup, Tab, ProgressRadial } from '@skeletonlabs/skeleton';
+    import { TabGroup, Tab, ProgressRadial, getModalStore } from '@skeletonlabs/skeleton';
     import StoryCard from "$lib/components/StoryCard.svelte";
     import { fade } from "svelte/transition";
+    import { writable } from "svelte/store";
+    import { onMount } from "svelte";
+    import FormattingGuide from "./FormattingGuide.svelte";
     export let data;
 
     const socket = globalSocket
+    const modalStore = getModalStore()
+
+    const formatGuideModal = {
+        type: "component",
+        component: { ref: FormattingGuide }
+    }
 
     let { isPlayerHost, players } = data
     let loading = false
@@ -15,13 +24,38 @@
     let gameOption = true
     let story = null
     let storyId = "65381226d28bcf3c21673659"
-    let selectedStory = null
     let isGameStarting = false
     let countdown = 0
+    let gameVariables = writable({})
+    let title = ""
+    let text = ""
+    let storyArea
+    $: if(storyArea) {
+        processText()
+    }	
 
-    // setTimeout(() => {
-    //     isGameStarting = true
-    // }, 1000)
+    function processText() {
+        let regex = /_([^_]+)_/g
+        let invalidRegex = /([<>])/g
+        let text2 = text.replace(invalidRegex, (match) => {
+            return `<code class="code variant-soft-error text-error-500 font-bold">${match}</code>`
+        })
+        storyArea.innerHTML = text2.replace(regex, (match) => {
+            return `<code class="code variant-soft-warning text-warning-500 font-bold">${match}</code>`
+        })
+    }
+
+    onMount(() => {
+        socket.emit("getGameVariables", data.roomId, (vars) => {
+            gameVariables.set(vars)
+            console.log("Vars update!", $gameVariables)
+        })
+    })
+
+    socket.on("gameVarsUpdate", (vars) => {
+        gameVariables.set(vars)
+        console.log("Vars update!", $gameVariables)
+    })
 
     socket.on("startGame", () => {
         isGameStarting = true
@@ -49,16 +83,32 @@
         isPlayerHost = host.username == data.username
     })
 
-    socket.on("newStory", async (id) => {
-        const res = await fetch(`/api/story?id=${id}`)
-        selectedStory = await res.json()
-    })
+    function removeStory() {
+        story = null
+        socket.emit("selectingStory", data.roomId, story)
+    }
+
+    function inputCustomStory() {
+        let regex = /_([^_]+)_/g
+        let invalidRegex = /([<>])/g
+        if(invalidRegex.test(text) || text.length == 0 || title.length == 0 || text.match(regex).length == 0)
+            return
+
+        story = null
+        story = {
+            title,
+            story: text,
+            gapAmount: text.match(regex).length
+        }
+        socket.emit("selectingStory", data.roomId, story)
+        console.log(story)
+    }
 
     async function getStory(id) {
         const res = await fetch(`/api/story?id=${id}`)
         story = await res.json()
         if(story)
-            socket.emit("selectingStory", data.roomId, id)
+            socket.emit("selectingStory", data.roomId, story)
         console.log(story)
     }
 
@@ -101,8 +151,8 @@
                 <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
                 <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
                 <svelte:fragment slot="panel">
-                    {#if gameOption}
-                        <div class="grid grid-cols-2">
+                    <div class="grid grid-cols-2">
+                        {#if gameOption}
                             <div class="h-full w-fit px-4">
                                 <label for="story-id">Enter story identificator:</label>
                                 <input type="text" id="story-id" placeholder="Story ID" class="input-primary my-2" maxlength="24" bind:value={storyId}>
@@ -110,6 +160,7 @@
                                 {#if !story}
                                     <p class="h3 mt-2 text-error-500 font-bold">No story selected.</p>
                                 {:else}
+                                    <button class="btn-error" on:click={removeStory}>Remove story</button>
                                     {#key players.length}
                                         {#if story.gapAmount < players.length}
                                             <p class="mt-2 text-error-500 font-bold">The story you selected is too short for the size of the lobby. Not everyone is going to play.</p>
@@ -119,22 +170,43 @@
                             </div>
                             <div class="p-4 w-max">
                                 {#if story}
-                                    <StoryCard {story} />
+                                    {#key Object.keys(story).length}
+                                        <StoryCard {story} />
+                                    {/key}
                                 {/if}
                             </div>
-                        </div>
-                    {:else}
-                        <input type="text" name="title" placeholder="Title" class="input mb-1"><br>
-                        <textarea cols="30" rows="10" placeholder="Story..." class="input" /><br>
-                    {/if}
+                        {:else}
+                            <div class="h-full px-4 grid grid-rows-[auto_1fr_auto] gap-2">
+                                <input type="text" name="title" placeholder="Title" class="input text-sm" bind:value={title}>
+                                <textarea cols="30" rows="16" placeholder="Story..." class="input text-xs" bind:value={text} on:input={processText}/>
+                                <div>
+                                    <button class="text-xs anchor cursor-pointer" on:click={() => { modalStore.trigger(formatGuideModal) }}>Don't know how to format the text? Click here.</button>
+                                    <button class="btn-secondary" on:click={inputCustomStory}>Submit</button>
+                                    {#if story}
+                                        <button class="btn-error" on:click={removeStory}>Remove story</button>
+                                    {/if}
+                                </div>
+                            </div>
+                            <div class="p-4 w-max mx-auto text-center">
+                                {#if story}
+                                    {#key Object.keys(story).length}
+                                        <StoryCard {story} />
+                                    {/key}
+                                {:else}
+                                    <h4 class="text-sm font-bold">{ title }</h4>
+                                    <p class="text-xs" bind:this={storyArea}></p>
+                                {/if}
+                            </div>
+                        {/if}
+                    </div>
                 </svelte:fragment>
             </TabGroup>
         {:else}
             <div class="w-full h-full flex justify-center items-center !flex-col gap-4">
-                {#if selectedStory}
+                {#if Object.keys($gameVariables).length > 0}
                     <p>Selected story:</p>
-                    {#key selectedStory._id}
-                        <StoryCard story={selectedStory} />
+                    {#key Object.keys($gameVariables.selectedStory).length}
+                        <StoryCard story={$gameVariables.selectedStory} />
                     {/key}
                 {:else}
                     <p>The host is currently setting up the game.</p>
