@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { generateRoomCode } from "./RoomCode"
-import { MongoClient } from "mongodb"
+import { MongoClient, ObjectId } from "mongodb"
 
 const ROOM_CAPACITY = 10
 
@@ -97,6 +97,7 @@ export default function configureServer(server) {
     const client = new MongoClient("mongodb+srv://akolt19d:NCneG47DWKaiDDmX@adamkolt.dkjdzaa.mongodb.net/?retryWrites=true&w=majority")
     const db = client.db("madlibz")
     const active = db.collection("active")
+    const stories = db.collection("stories")
 
     io.on("connect", (socket) => {
         socket.emit("event", socket.id)
@@ -323,6 +324,26 @@ export default function configureServer(server) {
                 else 
                     GAME_VARIABLES[roomCode] = {}
                 socket.broadcast.to(roomCode).emit("gameVarsUpdate", GAME_VARIABLES[roomCode])
+            }
+        })
+
+        socket.on("ratingStory", async (roomCode, storyId, positive, callback) => {
+            let room = await getRoom(roomCode, active)
+            if(room.story._id == storyId) {
+                if(positive) {
+                    await stories.updateOne({ _id: new ObjectId(storyId) }, {
+                        $inc: {
+                            likes: 1
+                        }
+                    })
+                } else {
+                    await stories.updateOne({ _id: new ObjectId(storyId) }, {
+                        $inc: {
+                            dislikes: 1
+                        }
+                    })
+                }
+                callback()
             }
         })
     })
