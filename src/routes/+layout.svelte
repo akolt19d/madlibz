@@ -8,7 +8,7 @@
 </script>
 
 <ViewTransition />
-<Modal background="variant-filled-tertiary" shadow="border-[.5rem] border-tertiary-700 shadow-[-6px_6px_0_6px_#91b16a]" regionBody="px-2 max-h-[200px] overflow-auto" regionHeader="text-center h3 font-bold" regionBackdrop="bg-black/40" buttonNeutral="btn-error shadow-[-2px_2px_0_2px_#8b3731]" buttonTextCancel="Cancel" />
+<Modal background="variant-filled-tertiary" shadow="border-[.5rem] border-tertiary-700 shadow-[-6px_6px_0_6px_#91b16a]" regionBody="px-2 max-h-[200px] overflow-auto" regionHeader="text-center h3 font-bold" regionBackdrop="bg-black/40" buttonNeutral="btn-error shadow-[-2px_2px_0_2px_#8b3731] !outline-none" buttonTextCancel="Close" />
 <slot />
 
 <style lang="postcss">

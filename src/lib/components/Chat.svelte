@@ -4,10 +4,18 @@
     export let chat, username, roomId;
     const socket = globalSocket
     let chatInput = ""
-
+    
     socket.on("chatUpdate", (updatedChat) => {
         console.log("Chat update!")
         chat = updatedChat
+        const chatDiv = document.querySelector("#chat")
+        setTimeout(() => {
+            chatDiv.scrollTo({
+                top: chatDiv.scrollHeight,
+                left: 0,
+                behavior: "smooth"
+            })
+        }, 100)
     })
 
     function sendChatMessage() {
@@ -26,7 +34,12 @@
 <div class="card variant-filled-primary grid grid-rows-[1fr_auto] h-80 p-8 gap-4 bbb bt-shadow-r">
     <div id="chat" class="card px-4 py-1 overflow-y-auto my-2 bg-primary-300 bbb !border-primary-700">
         {#each chat as chatMessage}
-            <p class={chatMessage.user ? "chatMessage" : "serverMessage"} data-value={chatMessage.message} in:fade={{ duration: 200 }}>{chatMessage.user ? `${chatMessage.user}: ` : ""}{chatMessage.message}</p>
+            <p class={chatMessage.user ? "chatMessage" : "serverMessage"} data-value={chatMessage.message} in:fade={{ duration: 200 }}>
+                {#if chatMessage.user}
+                    <b class={chatMessage.user == username ? "text-secondary-500" : ""}>{chatMessage.user}</b>: 
+                {/if}
+                {chatMessage.message}
+            </p>
         {/each}
     </div>
     <div class="input-group input-group-divider !bg-primary-300 !border-primary-700 focus-within:!border-dashed focus-within:!border-primary-500 grid-cols-[1fr_auto]">

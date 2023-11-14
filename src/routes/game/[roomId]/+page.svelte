@@ -178,9 +178,11 @@
                         {:else}
                             <div class="h-full px-4 grid grid-rows-[auto_1fr_auto] gap-2">
                                 <input type="text" name="title" placeholder="Title" class="input text-sm" bind:value={title}>
-                                <textarea cols="30" rows="16" placeholder="Story..." class="input text-xs" bind:value={text} on:input={processText}/>
                                 <div>
+                                    <textarea cols="30" rows="16" placeholder="Story..." class="input text-xs" bind:value={text} on:input={processText}/>
                                     <button class="text-xs anchor cursor-pointer" on:click={() => { modalStore.trigger(formatGuideModal) }}>Don't know how to format the text? Click here.</button>
+                                </div>
+                                <div>
                                     <button class="btn-secondary" on:click={inputCustomStory}>Submit</button>
                                     {#if story}
                                         <button class="btn-error" on:click={removeStory}>Remove story</button>

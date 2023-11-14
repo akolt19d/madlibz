@@ -6,6 +6,7 @@
     import { goto } from '$app/navigation';
     import { getModalStore } from '@skeletonlabs/skeleton';
     import StoryCard from '$lib/components/StoryCard.svelte';
+    import { fade } from 'svelte/transition';
 
     const socket = globalSocket
     const modalStore = getModalStore()
@@ -79,13 +80,15 @@
             <p>Well done, you've completed:</p>
             <StoryCard {story} />
             {#if canRate}
-                <p class="mt-2">Did you like it?</p>
-                <div class="grid grid-cols-2">
-                    <div>
-                        <button on:click={() => { rateStory(true) }} class="btn-success">Yes 👍</button>
-                    </div>
-                    <div>
-                        <button on:click={() => { rateStory(false) }} class="btn-error">No 👎</button>
+                <div transition:fade={{ duration: 300, delay: 200 }}>
+                    <p class="mt-2">Did you like it?</p>
+                    <div class="grid grid-cols-2">
+                        <div>
+                            <button on:click={() => { rateStory(true) }} class="btn-success">Yes 👍</button>
+                        </div>
+                        <div>
+                            <button on:click={() => { rateStory(false) }} class="btn-error">No 👎</button>
+                        </div>
                     </div>
                 </div>
             {/if}
