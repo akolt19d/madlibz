@@ -6,6 +6,7 @@
     import { goto } from '$app/navigation';
     import { getModalStore } from '@skeletonlabs/skeleton';
     import StoryCard from '$lib/components/StoryCard.svelte';
+    import Story from './Story.svelte';
     import { fade } from 'svelte/transition';
 
     const socket = globalSocket
@@ -17,7 +18,8 @@
 
     function triggerStoryModal() {
         modalStore.trigger({
-            type: "alert",
+            type: "component",
+            component: { ref: Story },
             title: story.title,
             body: $gameVariables.filledStory
         })

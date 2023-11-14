@@ -45,9 +45,8 @@
     }
 
     :global(.bg) {
-        @apply bg-tertiary-500;
         background-image: url("/seamless-pattern-01.svg");
-        background-size: 25%;
+        background-size: 25vw;
         background-blend-mode:soft-light
     }
 
