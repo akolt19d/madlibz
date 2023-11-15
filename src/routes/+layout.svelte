@@ -100,11 +100,19 @@
     }
 
     :global(.bt-text-l), :global(.bt-text-r) {
-        @apply text-black relative z-10 font-bold;
+        @apply text-primary-500 relative z-10 font-bold;
         -webkit-text-stroke-width: 1px;
         -webkit-text-stroke-color: black;
     }
 
+    :global(.bt-text-l) {
+        @apply !drop-shadow-[-1px_1px_0_black]
+    }
+
+    :global(.bt-text-r) {
+        @apply !drop-shadow-[2px_2px_0_black]
+    }
+/* 
     :global(.bt-text-r::before) {
         content: attr(data-value);
         @apply text-primary-500;
@@ -119,5 +127,5 @@
         position: absolute;
         transform: translate(2px, -2px);
         z-index: 1;
-    }
+    } */
 </style>

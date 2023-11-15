@@ -2,16 +2,18 @@
     import { goto } from "$app/navigation";
     import Loader from "$lib/components/Loader.svelte";
     import { globalSocket } from "$lib/socket.js";
-    import { TabGroup, Tab, ProgressRadial, getModalStore } from '@skeletonlabs/skeleton';
+    import { TabGroup, Tab, ProgressRadial, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
     import StoryCard from "$lib/components/StoryCard.svelte";
     import { fade } from "svelte/transition";
     import { writable } from "svelte/store";
     import { onMount } from "svelte";
     import FormattingGuide from "./FormattingGuide.svelte";
+    import { showErrorToast } from "$lib/ToastUtils";
     export let data;
 
     const socket = globalSocket
     const modalStore = getModalStore()
+    const toastStore = getToastStore()
 
     const formatGuideModal = {
         type: "component",
@@ -67,7 +69,7 @@
                 clearInterval(interval)
                 setTimeout(() => {
                     goto(`/game/${data.roomId}/play`)
-                }, 1000)
+                }, 300)
             }
         }, 1000)
     })
@@ -91,8 +93,10 @@
     function inputCustomStory() {
         let regex = /_([^_]+)_/g
         let invalidRegex = /([<>])/g
-        if(invalidRegex.test(text) || text.length == 0 || title.length == 0 || text.match(regex).length == 0)
+        if(invalidRegex.test(text) || text.length == 0 || title.length == 0 || !text.match(regex)) {
+            showErrorToast(toastStore, "There is an error with the submitted story. Please check if the submission criteria are met.")
             return
+        }
 
         story = null
         story = {
@@ -116,7 +120,7 @@
         if(story)
             socket.emit("startingGame", data.roomId, story)
         else 
-            alert("You must choose a story!")
+            console.log("You must choose a story!")
     }
 
     function leaveRoom() {
@@ -187,7 +191,7 @@
                                     <button class="text-xs anchor cursor-pointer" on:click={() => { modalStore.trigger(formatGuideModal) }}>Don't know how to format the text? Click here.</button>
                                 </div>
                                 <div>
-                                    <button class="btn-secondary" on:click={inputCustomStory}>Submit</button>
+                                    <button class="btn-secondary" disabled={!(title.length > 0 && text.length > 0)} on:click={inputCustomStory}>Submit</button>
                                     {#if story}
                                         <button class="btn-error" on:click={removeStory}>Remove story</button>
                                     {/if}

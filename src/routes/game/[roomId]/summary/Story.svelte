@@ -41,14 +41,14 @@
         <div in:fly={{ duration: 400, y: 300, opacity: 0 }} out:fly={{ duration: 400, y: -300, opacity: 0 }} class="bbb bt-shadow-l card bg-white p-8 flex justify-center flex-col gap-4">
             <p class="h3 text-center">The image has been saved!</p>
             <div id="downloadableStory" class="w-modal card bg variant-filled-{variants[0]} rounded-none px-8 py-4 border-{variants[0]}-700 border-[.5rem] !bg-{variants[0]}-500">
-                <h1 class="h1 text-center bt-text-l before:!text-{variants[1]}-500" data-value={title}>{ title }</h1>
+                <h1 class="relative h1 text-center bt-text-r !text-{variants[1]}-500">{ title }</h1>
                 <p class="m-2 text-justify" bind:this={storyP}></p>
             </div>
         </div>
     </div>   
 {/if}
 <div class="{parent.background} {parent.shadow} {parent.width} {parent.height} {parent.padding} {parent.spacing} {parent.rounded}">
-    <header class="{parent.regionHeader} bt-text-l" data-value={title}>
+    <header class="{parent.regionHeader} bt-text-l">
         { title }
     </header>
     <article bind:this={article}>

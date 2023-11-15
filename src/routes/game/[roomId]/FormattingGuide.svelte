@@ -4,7 +4,7 @@
 </script>
 
 <div class="{parent.background} {parent.shadow} {parent.width} {parent.height} {parent.padding} {parent.spacing} {parent.rounded}">
-    <header class="{parent.regionHeader} bt-text-l" data-value={title}>
+    <header class="{parent.regionHeader} bt-text-l">
         {title}
     </header>
     <article>

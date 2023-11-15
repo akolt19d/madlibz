@@ -23,7 +23,7 @@
 </script>
 
 <div class="p-2 h-full card bbb bt-shadow-l bg-secondary-500">
-    <h3 class="h3 mx-2">Room code: <button id="copy-roomcode" class="cursor-pointer bt-text-l before:!content-[attr(value)]" title="Copy room code" value={ roomId } on:click={() => { copy(roomId, "room code") }}>{ roomId }</button></h3>
+    <h3 class="h3 mx-2">Room code: <button id="copy-roomcode" class="cursor-pointer bt-text-l hover:brightness-[1.15]" title="Copy room code" value={ roomId } on:click={() => { copy(roomId, "room code") }}>{ roomId }</button></h3>
     <button class="btn-primary block w-full my-2" on:click={() => { copy(window.location.href, "link to game") }}>Invite</button>
     <hr class="my-4 !border-t-4 !border-dashed !border-black">
     <h5 class="h5 mb-2 font-bold">Players ({players.length}/10):</h5>
@@ -33,10 +33,3 @@
         {/each}
     </ol>
 </div>
-					
-
-<style lang="postcss">
-    #copy-roomcode:hover {
-        filter: brightness(1.15);
-    }
-</style>

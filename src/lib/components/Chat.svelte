@@ -34,7 +34,7 @@
 <div class="card variant-filled-primary grid grid-rows-[1fr_auto] h-80 p-8 gap-4 bbb bt-shadow-r">
     <div id="chat" class="card px-4 py-1 overflow-y-auto my-2 bg-primary-300 bbb !border-primary-700">
         {#each chat as chatMessage}
-            <p class={chatMessage.user ? "chatMessage" : "serverMessage"} data-value={chatMessage.message} in:fade={{ duration: 200 }}>
+            <p class={chatMessage.user ? "chatMessage" : "serverMessage"} in:fade={{ duration: 200 }}>
                 {#if chatMessage.user}
                     <b class={chatMessage.user == username ? "text-secondary-500" : ""}>{chatMessage.user}</b>: 
                 {/if}
