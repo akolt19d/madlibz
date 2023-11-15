@@ -80,6 +80,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Game</title>
+</svelte:head>
+
 {#if loading}
     <Loader />
 {:else}

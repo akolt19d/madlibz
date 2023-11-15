@@ -126,6 +126,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Room {data.roomId}</title>
+</svelte:head>
+
 {#if isGameStarting}
     <div transition:fade={{ duration: 250 }} class="fixed w-screen h-screen top-0 left-0 bg-black/40 flex justify-center items-center z-50">
         <div class="card bg-white py-8 gap-4 bbb bt-shadow-l relative !text-center">

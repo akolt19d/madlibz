@@ -42,7 +42,7 @@
             </p>
         {/each}
     </div>
-    <div class="input-group input-group-divider !bg-primary-300 !border-primary-700 focus-within:!border-dashed focus-within:!border-primary-500 grid-cols-[1fr_auto]">
+    <div class="input-group input-group-divider !bg-primary-300 !border-primary-700 focus-within:!border-dashed focus-within:!border-primary-500 focus-within:!shadow-[0_0_0_4px_#c8f7e9] grid-cols-[1fr_auto]">
         <input type="text" id="chat-input" class="!bg-primary-300 focus:!bg-transparent" placeholder="Enter message here" on:keypress={processKeyPress} bind:value={chatInput}>
         <button on:click={sendChatMessage} class="btn variant-filled-primary !rounded-r-none" id="chat-button">Send</button>
     </div>
@@ -58,5 +58,13 @@
 
     #chat > p {
         @apply my-1;
+    }
+
+    #chat::-webkit-scrollbar-track {
+        @apply !bg-primary-300;
+    }
+
+    #chat::-webkit-scrollbar-thumb {
+        @apply bg-primary-500;
     }
 </style>

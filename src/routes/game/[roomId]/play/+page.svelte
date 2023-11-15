@@ -73,6 +73,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>{ story.title }</title>
+</svelte:head>
+
 {#if $gameVariables}
     <div>
         <button on:click={leaveRoom} class="btn-error shadow-[-2px_2px_0_2px_#8b3731] ml-[2px]">Leave room</button>
@@ -90,7 +94,7 @@
                 <div class="card p-6 variant-filled-tertiary border-4 border-tertiary-700 shadow-[2px_2px_0_2px_#91b16a]">
                     {#if ($gameVariables.turn == data.playerIndex)}
                         <p class="h3 mb-2">It's your turn, <span  class="bt-text-r before:text-secondary-500" data-value={ orderedPlayers[0].username }>{ orderedPlayers[0].username }</span></p>
-                        <div class="input-group input-group-divider !bg-primary-300 !border-primary-700 focus-within:!border-dashed focus-within:!border-primary-500 grid-cols-[1fr_auto]">
+                        <div class="input-group input-group-divider !bg-primary-300 !border-primary-700 focus-within:!border-dashed focus-within:!border-primary-500  focus-within:!shadow-[0_0_0_4px_#c8f7e9] grid-cols-[1fr_auto]">
                             <input type="text" class="!bg-primary-300 focus:!bg-transparent" placeholder={$gameVariables.gaps[0]} bind:value={input} on:keypress={processKeyPress} on:input={inputValueChange}>
                             <button on:click={fillGap} class="btn variant-filled-primary !rounded-r-none" id="prompt-button">Confirm</button>
                         </div>

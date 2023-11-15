@@ -11,16 +11,25 @@ async function isRoomActive(roomId, active) {
     return Boolean(res)
 }
 
-async function isUsernameAvailable(username, roomCode, active) {
-    let room = await active.findOne({ roomId: roomCode })
+async function cannotJoin(username, roomCode, active) {
+    const room = await active.findOne({ roomId: roomCode })
+    if(!Boolean(room))
+        return true
+
+    let isNameAvailable = isUsernameAvailable(username, room)
+    let isFull = isRoomFull(room)
+
+    return (isFull || !isNameAvailable || room.hasGameStarted || room.hasSummaryStarted)
+}
+
+function isUsernameAvailable(username, room) {
     if(room.players.length == 0)
         return true
     let players = room.players.map(x => x.username)
     return !players.includes(username)
 }
 
-async function isRoomFull(roomId, active) {
-    const room = await active.findOne({ roomId: roomId })
+function isRoomFull(room) {
     if(!room)
         return false
 
@@ -113,7 +122,7 @@ export default function configureServer(server) {
         })
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
-            if(!(await isRoomActive(roomCode, active)) || (await isRoomFull(roomCode, active)) || !(await isUsernameAvailable(username, roomCode, active)) || !username || !roomCode) {
+            if(await cannotJoin(username, roomCode, active) || !username || !roomCode) {
                 callback(false)
             }
             else {

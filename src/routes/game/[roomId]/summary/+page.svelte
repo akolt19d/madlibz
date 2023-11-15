@@ -70,6 +70,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>{ story.title }</title>
+</svelte:head>
+
 {#if $gameVariables}
     <div>
         <button on:click={leaveRoom} class="btn-error shadow-[-2px_2px_0_2px_#8b3731] ml-[2px]">Leave room</button>
