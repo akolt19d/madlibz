@@ -4,9 +4,13 @@
     import { globalSocket } from "$lib/socket.js";
     import { onMount } from "svelte";
     import { setCookie, getCookie } from 'svelte-cookie'
+    import { getToastStore } from "@skeletonlabs/skeleton";
+    import { showLoginToast } from "$lib/ToastUtils.js";
     export let data;
 
     const socket = globalSocket
+    const toastStore = getToastStore()
+
     let roomcode = data.roomCode
     let username = ""
     let processedRoomcode = roomcode ? roomcode : "______"
@@ -15,6 +19,10 @@
 
     onMount(() => {
         processRoomcode()
+        // toastStore.trigger({
+        //     message: "I hate chocolate people",
+        //     autohide: false
+        // })
     })
 
     function processRoomcode() {
@@ -54,6 +62,7 @@
     }
 
     async function redirectToRoom(roomId) {
+        toastStore.clear()
         loading = true
         setCookie("username", username, 30)
         goto(`/game/${roomId}`)
@@ -61,21 +70,21 @@
 
     function createRoom() {
         socket.emit("creatingRoom", (code) => {
-            socket.emit("joiningRoom", code, username, (isActive) => {
-                if(isActive)
+            socket.emit("joiningRoom", code, username, (res) => {
+                if(res.canJoin)
                     redirectToRoom(code)
                 else 
-                    console.log("Room inactive.")
+                    showLoginToast(toastStore, res.message)
             })
         })
     }
 
     function joinRoom() {
-        socket.emit("joiningRoom", roomcode, username, (isActive) => {
-            if(isActive)
+        socket.emit("joiningRoom", roomcode, username, (res) => {
+            if(res.canJoin)
                 redirectToRoom(roomcode)
             else 
-                console.log("Room inactive.")
+                showLoginToast(toastStore, res.message)
         })
     }
 </script>

@@ -38,7 +38,7 @@
 
 {#if isDownloading} 
     <div class="fixed w-screen h-screen top-0 left-0 bg-black/40 flex justify-center flex-col items-center z-50">
-        <div transition:fly={{ duration: 400, y: 300, opacity: 0 }} class="bbb bt-shadow-l card bg-white p-8 flex justify-center flex-col gap-4">
+        <div in:fly={{ duration: 400, y: 300, opacity: 0 }} out:fly={{ duration: 400, y: -300, opacity: 0 }} class="bbb bt-shadow-l card bg-white p-8 flex justify-center flex-col gap-4">
             <p class="h3 text-center">The image has been saved!</p>
             <div id="downloadableStory" class="w-modal card bg variant-filled-{variants[0]} rounded-none px-8 py-4 border-{variants[0]}-700 border-[.5rem] !bg-{variants[0]}-500">
                 <h1 class="h1 text-center bt-text-l before:!text-{variants[1]}-500" data-value={title}>{ title }</h1>

@@ -13,13 +13,24 @@ async function isRoomActive(roomId, active) {
 
 async function cannotJoin(username, roomCode, active) {
     const room = await active.findOne({ roomId: roomCode })
+    let message = "There has been an error."
     if(!Boolean(room))
-        return true
+        return { flag: true, message: "The room you tried to join is not active." }
 
     let isNameAvailable = isUsernameAvailable(username, room)
     let isFull = isRoomFull(room)
 
-    return (isFull || !isNameAvailable || room.hasGameStarted || room.hasSummaryStarted)
+    if(!isNameAvailable)
+        message = "The username is already taken for this lobby."
+    if(isFull)
+        message = "The room is already full."
+    if(room.hasGameStarted || room.hasSummaryStarted)
+        message = "The game has already started. Wait for the players to finish and try again."
+
+    return {
+        flag: (isFull || !isNameAvailable || room.hasGameStarted || room.hasSummaryStarted),
+        message
+    }
 }
 
 function isUsernameAvailable(username, room) {
@@ -122,8 +133,12 @@ export default function configureServer(server) {
         })
 
         socket.on("joiningRoom", async (roomCode, username, callback) => {           
-            if(await cannotJoin(username, roomCode, active) || !username || !roomCode) {
-                callback(false)
+            const cantJoin = await cannotJoin(username, roomCode, active)
+            if(cantJoin.flag || !username || !roomCode) {
+                callback({
+                    canJoin: false,
+                    message: cantJoin.message
+                })
             }
             else {
                 let { id } = socket
@@ -151,7 +166,9 @@ export default function configureServer(server) {
                 let updatedRoom = await getRoom(roomCode, active)
                 io.to(roomCode).emit("chatUpdate", updatedRoom.chat)
                 io.to(roomCode).emit("playerUpdate", updatedRoom.players)
-                callback(true)
+                callback({
+                    canJoin: true
+                })
             }
         })
 

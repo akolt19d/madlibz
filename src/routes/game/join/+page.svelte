@@ -4,17 +4,22 @@
     import { globalSocket } from '$lib/socket.js';
     import { goto } from '$app/navigation';
     import { setCookie } from 'svelte-cookie';
+    import { getToastStore } from '@skeletonlabs/skeleton';
+    import { showLoginToast } from '$lib/ToastUtils.js';
 
     const socket = globalSocket
+    const toastStore = getToastStore()
     let { roomId, isUsernameSet, username } = data
     let usernameInput = generateAnonUsername()
 
     if(isUsernameSet) {
-        socket.emit("joiningRoom", roomId, username, (isActive) => {
-            if(isActive)
+        socket.emit("joiningRoom", roomId, username, (res) => {
+            if(res.canJoin)
                 goto(`/game/${roomId}`)
-            else 
+            else {
+                showLoginToast(toastStore, res.message)
                 goto("/game")
+            }
         })
     }
 
@@ -31,13 +36,15 @@
         if(!usernameInput)
             return
         
-        socket.emit("joiningRoom", roomId, usernameInput, (isActive) => {
-            if(isActive) {
+        socket.emit("joiningRoom", roomId, usernameInput, (res) => {
+            if(res.canJoin) {
                 setCookie("username", usernameInput, 30)
                 goto(`/game/${roomId}`)
             }
-            else 
+            else {
+                showLoginToast(toastStore, res.message)
                 goto("/game")
+            }
         })
     }
 </script>
