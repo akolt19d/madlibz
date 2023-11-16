@@ -23,7 +23,7 @@
     let { isPlayerHost, players } = data
     let loading = false
 
-    let gameOption = true
+    let gameOption = 0
     let story = null
     let storyId = "65381226d28bcf3c21673659"
     let isGameStarting = false
@@ -113,7 +113,9 @@
         story = await res.json()
         if(story)
             socket.emit("selectingStory", data.roomId, story)
-        console.log(story)
+        else 
+            showErrorToast(toastStore, "The story with this ID doesn't exist or has been deleted.")
+        console.log(story, story.story.length)
     }
 
     async function startGame() {
@@ -156,15 +158,32 @@
     <div class="card my-4 p-6 bbb bt-shadow-r">
         {#if isPlayerHost}
             <TabGroup active="border-black border-solid border-b-4" hover="border-transparent hover:border-black/25 hover:border-dashed border-b-4" border="border-b-4">
-                <Tab bind:group={gameOption} value={true}>Select existing story</Tab>
-                <Tab bind:group={gameOption} value={false}>Upload custom story</Tab>
+                <Tab bind:group={gameOption} value={0}>Select random story</Tab>
+                <Tab bind:group={gameOption} value={1}>Get story by ID</Tab>
+                <Tab bind:group={gameOption} value={2}>Upload custom story</Tab>
                 <svelte:fragment slot="panel">
                     <div class="grid grid-cols-2">
-                        {#if gameOption}
+                        {#if gameOption == 0}
+                            <div class="h-full w-fit px-4">
+                                <button class="btn-secondary">Select</button>
+                                {#if !story}
+                                    <p class="h3 mt-2 text-error-500 font-bold">No story selected.</p>
+                                {:else}
+                                    <button class="btn-error" on:click={removeStory}>Remove story</button>
+                                {/if}
+                            </div>
+                            <div class="p-4 w-max">
+                                {#if story}
+                                    {#key Object.keys(story).length}
+                                        <StoryCard {story} />
+                                    {/key}
+                                {/if}
+                            </div>
+                        {:else if gameOption == 1}
                             <div class="h-full w-fit px-4">
                                 <label for="story-id">Enter story identificator:</label>
                                 <input type="text" id="story-id" placeholder="Story ID" class="input-primary my-2" maxlength="24" bind:value={storyId}>
-                                <button class="btn-secondary" on:click={() => { getStory(storyId) }}>Select</button>
+                                <button class="btn-secondary" disabled={!(storyId.length > 0)} on:click={() => { getStory(storyId) }}>Select</button>
                                 {#if !story}
                                     <p class="h3 mt-2 text-error-500 font-bold">No story selected.</p>
                                 {:else}
