@@ -146,8 +146,8 @@
             showErrorToast(toastStore, "A story with the given filters doesn't exist.")
     }
 
-    async function getStory(id) {
-        const res = await fetch(`/api/story?id=${id}`)
+    async function getStory() {
+        const res = await fetch(`/api/story?id=${storyId}`)
         story = await res.json()
         if(story)
             socket.emit("selectingStory", data.roomId, story)
@@ -244,7 +244,7 @@
                             <div class="h-full w-fit px-4">
                                 <label for="story-id" class="h3">Enter story identificator:</label>
                                 <input type="text" id="story-id" placeholder="Story ID" class="input-primary my-2" maxlength="24" bind:value={storyId}>
-                                <button class="btn-secondary" disabled={!(storyId.length > 0)} on:click={() => { getStory(storyId) }}>Select</button>
+                                <button class="btn-secondary" disabled={!(storyId.length > 0)} on:click={getStory}>Select</button>
                                 {#if !story}
                                     <p class="h3 mt-2 text-error-500 font-bold">No story selected.</p>
                                 {:else}

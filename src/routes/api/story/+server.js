@@ -43,11 +43,14 @@ function convertStringToBool(string) {
 
 export async function GET({ url }) {
     const id = url.searchParams.get("id")
-    const filters = {
-        tags: url.searchParams.get("tag"),
+    let filters = {
+        tags: url.searchParams.get("tags") ? url.searchParams.get("tags").split(',') : null,
         nsfw: convertStringToBool(url.searchParams.get("nsfw")),
         original: convertStringToBool(url.searchParams.get("original"))
     }
+    let { tags } = filters
+    if(tags)
+        filters.tags = { $all: tags }
     if(id)
         return new Response(await getStoryWithId(id))
     else {
