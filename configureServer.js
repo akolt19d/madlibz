@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { generateRoomCode } from "./RoomCode"
+import { generateRoomCode } from "./RoomCode.js"
 import { MongoClient, ObjectId } from "mongodb"
 
 const ROOM_CAPACITY = 10
@@ -101,19 +101,10 @@ function fillStory(text, fills) {
         gaps[i] = ""
         return `<span class="filled-gap text-error-500 underline">${fills[i]}</span>`
     })
-    // let regex2 = /(a\/an\s.)/g
-    // return filledStory.replace(regex2, (match) => {
-    //     const vowels = ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U"]
-    //     let letter = match[match.length-1]
-    //     if(vowels.includes(letter))
-    //       return `an ${letter}`
-    //     else 
-    //       return `a ${letter}`
-    // })
 }
 
 export default function configureServer(server) {
-    const io = new Server(server.httpServer)
+    const io = new Server(server.httpServer ? server.httpServer : server)
     const client = new MongoClient("mongodb+srv://akolt19d:NCneG47DWKaiDDmX@adamkolt.dkjdzaa.mongodb.net/?retryWrites=true&w=majority")
     const db = client.db("madlibz")
     const active = db.collection("active")
