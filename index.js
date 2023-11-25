@@ -10,4 +10,4 @@ configureServer(server)
 
 app.use(handler)
 
-server.listen(80)
+server.listen(port)

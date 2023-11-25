@@ -277,14 +277,16 @@
                                     {/if}
                                 </div>
                             </div>
-                            <div class="p-4 w-max mx-auto text-center">
+                            <div class="p-4 w-full mx-auto text-center overflow-x-auto">
                                 {#if story}
                                     {#key Object.keys(story).length}
                                         <StoryCard {story} />
                                     {/key}
                                 {:else}
                                     <h4 class="text-sm font-bold">{ title }</h4>
-                                    <p class="text-xs" bind:this={storyArea}></p>
+                                    <div class="h-full mx-auto max-w-fit">
+                                        <p class="text-xs" bind:this={storyArea}></p>
+                                    </div>
                                 {/if}
                             </div>
                         {/if}
