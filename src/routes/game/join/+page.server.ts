@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit'
+import type { PageServerLoad } from "./$types"
 
-export function load({ url, cookies }) {
+export const load: PageServerLoad = ({ url, cookies }) => {
     const roomId = url.searchParams.get("r")
 
     if(!roomId)
@@ -9,7 +10,7 @@ export function load({ url, cookies }) {
     const username = cookies.get("username")
     return {
         roomId,
-        username,
+        username: username ?? "",
         isUsernameSet: Boolean(username)
     }
 }
