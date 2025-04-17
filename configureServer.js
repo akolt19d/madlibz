@@ -1,6 +1,8 @@
 import { Server } from 'socket.io';
 import { generateRoomCode } from "./RoomCode.js"
 import { MongoClient, ObjectId } from "mongodb"
+import dotenv from "dotenv"
+dotenv.config()
 
 const ROOM_CAPACITY = 10
 
@@ -105,7 +107,7 @@ function fillStory(text, fills) {
 
 export default function configureServer(server) {
     const io = new Server(server.httpServer ? server.httpServer : server)
-    const client = new MongoClient("mongodb+srv://akolt19d:NCneG47DWKaiDDmX@adamkolt.dkjdzaa.mongodb.net/?retryWrites=true&w=majority")
+    const client = new MongoClient(process.env.MONGODB_URI)
     const db = client.db("madlibz")
     const active = db.collection("active")
     const stories = db.collection("stories")
